@@ -17,6 +17,7 @@ import indexRoutes from "./router/indexRoutes";
 
 // Database Import
 import { AppDataSource } from "./database/data-source";
+import errorMiddleware from "./middleware/ErrorMiddleware";
 
 // Database Type Check
 if (AppDataSource.options.type !== "postgres")
@@ -71,6 +72,8 @@ const startServer = async () => {
 
         // Routes
         app.use("/api/v1/index", indexRoutes);
+
+        app.use(errorMiddleware);
 
         if (app.get("env") === "development") app.use(errorHandler());
 
