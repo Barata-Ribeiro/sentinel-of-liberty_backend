@@ -18,6 +18,7 @@ import indexRoutes from "./router/indexRoutes";
 // Database Import
 import { AppDataSource } from "./database/data-source";
 import errorMiddleware from "./middleware/ErrorMiddleware";
+import authRoutes from "./router/authRoutes";
 
 // Database Type Check
 if (AppDataSource.options.type !== "postgres")
@@ -47,7 +48,6 @@ const startServer = async () => {
             ],
             credentials: true
         };
-        app.options("*", cors(corsOptions));
         app.use(cors(corsOptions));
         app.use(favicon(path.join(__dirname, "..", "public", "favicon.ico")));
         app.use(logger("dev"));
@@ -72,6 +72,7 @@ const startServer = async () => {
 
         // Routes
         app.use("/api/v1/index", indexRoutes);
+        app.use("/api/v1/auth", authRoutes);
 
         app.use(errorMiddleware);
 
