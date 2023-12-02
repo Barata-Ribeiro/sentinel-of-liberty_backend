@@ -3,9 +3,11 @@ import {
     CreateDateColumn,
     Entity,
     Index,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
+import { Article } from "./Article";
 
 export enum UserRole {
     ADMIN = "admin",
@@ -47,6 +49,13 @@ export class User {
         default: UserRole.READER
     })
     role!: UserRole;
+
+    @OneToMany(() => Article, (article) => article.user, {
+        cascade: true,
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+    })
+    articles!: Article[];
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt!: Date;
