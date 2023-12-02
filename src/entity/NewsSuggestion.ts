@@ -3,41 +3,32 @@ import {
     CreateDateColumn,
     Entity,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
-import { NewsSuggestion } from "./NewsSuggestion";
+import { Article } from "./Article";
 import { User } from "./User";
 
-@Entity("article_table")
-export class Article {
+@Entity("news_suggestion_table")
+export class NewsSuggestion {
     @PrimaryGeneratedColumn("uuid")
     id!: string;
 
-    @ManyToOne(() => User, (user) => user.articles)
+    @ManyToOne(() => User, (user) => user.newsSuggested)
     user!: User;
 
     @Column({ type: "varchar", length: "100", nullable: false })
     title!: string;
 
-    @Column({ type: "text", length: "2500", nullable: false })
+    @Column({ type: "text", length: "100", nullable: false })
     content!: string;
 
     @Column({ type: "varchar", length: "255", nullable: false })
     image!: string;
 
-    @Column({ type: "text", length: "200", nullable: false })
-    contentSummary!: string;
-
-    @Column("text", { array: true, nullable: false })
-    references!: string[];
-
-    @ManyToOne(
-        () => NewsSuggestion,
-        (newsSuggestion) => newsSuggestion.articles,
-        { nullable: true }
-    )
-    basedOnNewsSuggestion?: NewsSuggestion;
+    @OneToMany(() => Article, (article) => article.basedOnNewsSuggestion)
+    articles!: Article[];
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt!: Date;

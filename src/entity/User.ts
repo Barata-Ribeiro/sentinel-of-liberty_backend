@@ -8,6 +8,7 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import { Article } from "./Article";
+import { NewsSuggestion } from "./NewsSuggestion";
 
 export enum UserRole {
     ADMIN = "admin",
@@ -49,6 +50,13 @@ export class User {
         default: UserRole.READER
     })
     role!: UserRole;
+
+    @OneToMany(() => NewsSuggestion, (suggestion) => suggestion.user, {
+        cascade: true,
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+    })
+    newsSuggested!: NewsSuggestion[];
 
     @OneToMany(() => Article, (article) => article.user, {
         cascade: true,
