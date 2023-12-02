@@ -10,9 +10,7 @@ interface AccessTokenResponse {
 }
 
 export class AuthServices {
-    static async discordLoginRedirect(
-        code: string
-    ): Promise<AccessTokenResponse> {
+    async discordLoginRedirect(code: string): Promise<AccessTokenResponse> {
         const formData = new url.URLSearchParams();
         formData.append("client_id", process.env.DISCORD_CLIENT_ID || "");
         formData.append(

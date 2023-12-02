@@ -2,11 +2,11 @@ import { Router } from "express";
 
 const router = Router();
 
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
     res.send("GET request to the homepage");
 });
 
-router.post("/", (req, res) => {
+router.post("/", (_req, res) => {
     res.send("POST request to the homepage");
 });
 
