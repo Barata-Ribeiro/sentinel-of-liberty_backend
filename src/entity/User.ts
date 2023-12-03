@@ -8,6 +8,8 @@ import {
     UpdateDateColumn
 } from "typeorm";
 import { Article } from "./Article";
+import { Comment } from "./Comment";
+import { Like } from "./Like";
 import { NewsSuggestion } from "./NewsSuggestion";
 
 export enum UserRole {
@@ -64,6 +66,18 @@ export class User {
         onDelete: "CASCADE"
     })
     articles!: Article[];
+
+    @OneToMany(() => Comment, (comment) => comment.user)
+    comments!: Comment[];
+
+    @OneToMany(() => Like, (like) => like.user)
+    likes!: Like[];
+
+    @Column({ default: false })
+    isBanned!: boolean;
+
+    @Column({ default: false })
+    isDeleted!: boolean;
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt!: Date;

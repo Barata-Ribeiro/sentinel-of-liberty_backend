@@ -3,9 +3,11 @@ import {
     CreateDateColumn,
     Entity,
     ManyToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
+import { Comment } from "./Comment";
 import { NewsSuggestion } from "./NewsSuggestion";
 import { User } from "./User";
 
@@ -38,6 +40,9 @@ export class Article {
         { nullable: true }
     )
     basedOnNewsSuggestion?: NewsSuggestion;
+
+    @OneToMany(() => Comment, (comment) => comment.article)
+    comments!: Comment[];
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt!: Date;
