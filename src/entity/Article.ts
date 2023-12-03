@@ -41,7 +41,11 @@ export class Article {
     )
     basedOnNewsSuggestion?: NewsSuggestion;
 
-    @OneToMany(() => Comment, (comment) => comment.article)
+    @OneToMany(() => Comment, (comment) => comment.article, {
+        cascade: true,
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+    })
     comments!: Comment[];
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

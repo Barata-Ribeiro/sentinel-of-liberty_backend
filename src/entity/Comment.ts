@@ -34,11 +34,7 @@ export class Comment {
     })
     article!: Article;
 
-    @ManyToOne(() => Comment, (comment) => comment.children, {
-        cascade: true,
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE"
-    })
+    @ManyToOne(() => Comment, (comment) => comment.children)
     parent?: Comment;
 
     @OneToMany(() => Comment, (comment) => comment.parent)

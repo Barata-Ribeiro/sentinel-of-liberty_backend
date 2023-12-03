@@ -15,7 +15,11 @@ export class NewsSuggestion {
     @PrimaryGeneratedColumn("uuid")
     id!: string;
 
-    @ManyToOne(() => User, (user) => user.newsSuggested)
+    @ManyToOne(() => User, (user) => user.newsSuggested, {
+        cascade: true,
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+    })
     user!: User;
 
     @Column({ type: "varchar", length: "100", nullable: false })
@@ -27,7 +31,11 @@ export class NewsSuggestion {
     @Column({ type: "varchar", length: "255", nullable: false })
     image!: string;
 
-    @OneToMany(() => Article, (article) => article.basedOnNewsSuggestion)
+    @OneToMany(() => Article, (article) => article.basedOnNewsSuggestion, {
+        cascade: true,
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+    })
     articles!: Article[];
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

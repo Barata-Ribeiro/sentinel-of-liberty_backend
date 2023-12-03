@@ -67,17 +67,22 @@ export class User {
     })
     articles!: Article[];
 
-    @OneToMany(() => Comment, (comment) => comment.user)
+    @OneToMany(() => Comment, (comment) => comment.user, {
+        cascade: true,
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+    })
     comments!: Comment[];
 
-    @OneToMany(() => Like, (like) => like.user)
+    @OneToMany(() => Like, (like) => like.user, {
+        cascade: true,
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE"
+    })
     likes!: Like[];
 
     @Column({ default: false })
     isBanned!: boolean;
-
-    @Column({ default: false })
-    isDeleted!: boolean;
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt!: Date;
