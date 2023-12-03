@@ -1,5 +1,10 @@
 import axios from "axios";
 import url from "url";
+import {
+    ForbiddenError,
+    InternalServerError
+} from "../middleware/helper/ApiError";
+import { userRepository } from "../repository/userRepository";
 
 interface AccessTokenResponse {
     access_token: string;
@@ -9,7 +14,74 @@ interface AccessTokenResponse {
     scope: string;
 }
 
+interface UserResponse {
+    id: string;
+    username: string;
+    global_name: string;
+    avatar: string;
+    email?: string;
+    locale?: string;
+}
+
 export class AuthServices {
+    async discordLoginSaveUserToDatabase(token: string): Promise<UserResponse> {
+        try {
+            const userResponse = await axios.get(
+                "https://discord.com/api/v10/users/@me",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Accept-Encoding": "application/x-www-form-urlencoded"
+                    }
+                }
+            );
+
+            const userData: UserResponse = {
+                id: userResponse.data.id,
+                username: userResponse.data.username,
+                global_name: userResponse.data.global_name,
+                avatar: userResponse.data.avatar,
+                email: userResponse.data.email,
+                locale: userResponse.data.locale
+            };
+
+            const checkIfUserExists = await userRepository.findOneBy({
+                discordId: userData.id
+            });
+
+            if (checkIfUserExists) {
+                if (checkIfUserExists.isBanned)
+                    throw new ForbiddenError("User is banned.");
+
+                const updatedUser = {
+                    ...checkIfUserExists,
+                    discordId: userData.id,
+                    discordUsername: userData.username,
+                    discordEmail: userData.email,
+                    discordAvatar: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
+                };
+
+                await userRepository.save(updatedUser);
+            } else {
+                const newUser = await userRepository.create({
+                    discordId: userData.id,
+                    discordUsername: userData.username,
+                    discordEmail: userData.email,
+                    discordAvatar: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
+                });
+
+                await userRepository.save(newUser);
+            }
+
+            return userData;
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response)
+                throw new Error(error.response.data.message);
+            throw new InternalServerError("Something went wrong.");
+        }
+    }
+
     async discordLoginRedirect(code: string): Promise<AccessTokenResponse> {
         const formData = new url.URLSearchParams();
         formData.append("client_id", process.env.DISCORD_CLIENT_ID || "");
@@ -41,6 +113,7 @@ export class AuthServices {
         } catch (error) {
             if (axios.isAxiosError(error) && error.response)
                 throw new Error(error.response.data.message);
+            throw new InternalServerError("Something went wrong.");
         }
 
         return tokenData;
