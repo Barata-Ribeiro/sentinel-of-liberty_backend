@@ -1,3 +1,4 @@
+// Dependency Imports
 import bodyParser from "body-parser";
 import compression from "compression";
 import cookieParser from "cookie-parser";
@@ -13,12 +14,15 @@ import path from "path";
 import favicon from "serve-favicon";
 
 // Route Imports
+import authRoutes from "./router/authRoutes";
 import indexRoutes from "./router/indexRoutes";
+import usersRoutes from "./router/usersRoutes";
 
 // Database Import
 import { AppDataSource } from "./database/data-source";
+
+// Middleware Imports
 import errorMiddleware from "./middleware/ErrorMiddleware";
-import authRoutes from "./router/authRoutes";
 
 // Database Type Check
 if (AppDataSource.options.type !== "postgres")
@@ -73,6 +77,7 @@ const startServer = async () => {
         // Routes
         app.use("/api/v1/index", indexRoutes);
         app.use("/api/v1/auth", authRoutes);
+        app.use("/api/v1/users", usersRoutes);
 
         app.use(errorMiddleware);
 
