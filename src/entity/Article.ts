@@ -22,13 +22,13 @@ export class Article {
     @Column({ type: "varchar", length: "100", nullable: false })
     title!: string;
 
-    @Column({ type: "text", length: "2500", nullable: false })
+    @Column({ type: "text", nullable: false })
     content!: string;
 
     @Column({ type: "varchar", length: "255", nullable: false })
     image!: string;
 
-    @Column({ type: "text", length: "200", nullable: false })
+    @Column({ type: "text", nullable: false })
     contentSummary!: string;
 
     @Column("text", { array: true, nullable: false })

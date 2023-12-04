@@ -15,17 +15,13 @@ export class NewsSuggestion {
     @PrimaryGeneratedColumn("uuid")
     id!: string;
 
-    @ManyToOne(() => User, (user) => user.newsSuggested, {
-        cascade: true,
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE"
-    })
+    @ManyToOne(() => User, (user) => user.newsSuggested)
     user!: User;
 
     @Column({ type: "varchar", length: "100", nullable: false })
     title!: string;
 
-    @Column({ type: "text", length: "100", nullable: false })
+    @Column({ type: "text", nullable: false })
     content!: string;
 
     @Column({ type: "varchar", length: "255", nullable: false })

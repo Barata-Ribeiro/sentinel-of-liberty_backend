@@ -39,11 +39,11 @@ export class User {
     @Column({ type: "varchar" })
     discordAvatar!: string;
 
-    @Column({ type: "varchar", length: 20, unique: true, nullable: false })
+    @Column({ type: "varchar", length: 20, unique: true, nullable: true })
     @Index({ unique: true })
     sol_username!: string;
 
-    @Column({ type: "varchar", length: 150 })
+    @Column({ type: "varchar", length: 150, nullable: true })
     sol_biography!: string;
 
     @Column({

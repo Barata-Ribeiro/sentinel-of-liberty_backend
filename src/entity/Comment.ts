@@ -17,27 +17,27 @@ export class Comment {
     @Column("text")
     message!: string;
 
-    @OneToMany(() => Like, (like) => like.comment)
+    @OneToMany(() => Like, (like) => like.comment, {
+        cascade: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+    })
     likes!: Like[];
 
-    @ManyToOne(() => User, (user) => user.comments, {
-        cascade: true,
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE"
-    })
+    @ManyToOne(() => User, (user) => user.comments)
     user!: User;
 
-    @ManyToOne(() => Article, (article) => article.comments, {
-        cascade: true,
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE"
-    })
+    @ManyToOne(() => Article, (article) => article.comments)
     article!: Article;
 
     @ManyToOne(() => Comment, (comment) => comment.children)
     parent?: Comment;
 
-    @OneToMany(() => Comment, (comment) => comment.parent)
+    @OneToMany(() => Comment, (comment) => comment.parent, {
+        cascade: true,
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE"
+    })
     children!: Comment[];
 
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
