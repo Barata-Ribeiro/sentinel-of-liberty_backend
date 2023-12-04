@@ -13,22 +13,19 @@ const authMiddleware = async (
     _res: Response,
     next: NextFunction
 ): Promise<void> => {
-    const { discordId } = req.cookies?.authToken;
-    if (!discordId)
-        throw new UnauthorizedError("No authenthication token provided.");
-
-    const splitUserToken = discordId.split(" ")[1];
-
     try {
+        const authToken = req.cookies?.authToken;
+        if (!authToken)
+            throw new BadRequestError("No authentication token provided.");
+
         const secretKey = process.env.JWT_SECRET_KEY!;
-        if (!secretKey) throw new BadRequestError("Secret key not found");
+        if (!secretKey) throw new NotFoundError("Secret key not found");
 
-        const { discordId } = verify(
-            splitUserToken,
-            secretKey
-        ) as JwtPayloadWithId;
+        const verifiedToken = verify(authToken, secretKey) as JwtPayloadWithId;
 
-        const actualUser = await userRepository.findOneBy({ discordId });
+        const actualUser = await userRepository.findOneBy({
+            discordId: verifiedToken.discordId
+        });
         if (!actualUser) throw new NotFoundError("User not found.");
 
         req.user = actualUser;
