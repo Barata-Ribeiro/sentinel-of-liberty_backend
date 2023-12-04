@@ -1,5 +1,10 @@
+import axios from "axios";
 import { Request, Response } from "express";
-import { BadRequestError } from "../middleware/helper/ApiError";
+import { AuthRequest } from "../@types/globalTypes";
+import {
+    BadRequestError,
+    InternalServerError
+} from "../middleware/helper/ApiError";
 import { AuthServices } from "../service/AuthServices";
 const { sign } = require("jsonwebtoken");
 
@@ -43,5 +48,41 @@ export class AuthController {
         });
 
         return res.status(200).json({ message: "Login successful." });
+    }
+
+    async discordLogout(req: AuthRequest, res: Response): Promise<Response> {
+        const refreshTokenCookie = req.cookies?.refresh_token;
+        if (!refreshTokenCookie)
+            throw new BadRequestError("No refresh token provided.");
+
+        try {
+            await axios.post(
+                "https://discord.com/api/v10/oauth2/token/revoke",
+                {
+                    token: refreshTokenCookie,
+                    token_type_hint: "refresh_token"
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    auth: {
+                        username: process.env.DISCORD_CLIENT_ID ?? "",
+                        password: process.env.DISCORD_CLIENT_SECRET ?? ""
+                    }
+                }
+            );
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response)
+                throw new Error(error.response.data.message);
+            throw new InternalServerError("Something went wrong.");
+        }
+
+        res.clearCookie("refresh_token");
+        res.clearCookie("authToken");
+
+        return res
+            .status(200)
+            .json({ message: "You have successfully logged out!" });
     }
 }
