@@ -1,12 +1,8 @@
+import { UserDataRequest } from "../@types/globalTypes";
 import { UserUpdateProfileResponseDTO } from "../dto/UserUpdateProfileResponseDTO";
 import { User } from "../entity/User";
 import { ConflictError } from "../middleware/helper/ApiError";
 import { userRepository } from "../repository/userRepository";
-
-interface UserDataRequest {
-    sol_username?: string;
-    sol_biography?: string;
-}
 
 export class UserServices {
     async updateOwnAccount(userData: UserDataRequest, requestingUser: User) {
