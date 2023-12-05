@@ -1,0 +1,122 @@
+import axios from "axios";
+import { Request, Response } from "express";
+import { AuthRequest } from "../@types/globalTypes";
+import { AppDataSource } from "../database/data-source";
+import { UserResponseDTO } from "../dto/UserResponseDTO";
+import {
+    BadRequestError,
+    InternalServerError,
+    NotFoundError
+} from "../middleware/helper/ApiError";
+import { userRepository } from "../repository/userRepository";
+import { UserServices } from "../service/UserServices";
+
+const userServices = new UserServices();
+
+export class UserController {
+    async getAllUsers(_req: Request, res: Response): Promise<Response> {
+        const allUsers = await userRepository.find();
+
+        const usersResponse = allUsers.map((user) =>
+            UserResponseDTO.fromEntity(user)
+        );
+
+        return res.status(200).json(usersResponse);
+    }
+
+    async getUserById(req: Request, res: Response): Promise<Response> {
+        const userId = req.params.userId;
+
+        const requiredUser = await userRepository.findOneBy({ id: userId });
+        if (!requiredUser) throw new NotFoundError("User not found.");
+
+        const userResponse = UserResponseDTO.fromEntity(requiredUser);
+
+        return res.status(200).json(userResponse);
+    }
+
+    async updateOwnAccount(req: AuthRequest, res: Response): Promise<Response> {
+        const userData = req.body;
+        const requestingUser = req.user;
+
+        if (!requestingUser)
+            throw new BadRequestError("Missing requesting user.");
+
+        const response = await userServices.updateOwnAccount(
+            userData,
+            requestingUser
+        );
+
+        return res.status(200).json(response);
+    }
+
+    async deleteOwnAccount(req: AuthRequest, res: Response): Promise<Response> {
+        const requestingUser = req.user;
+        if (!requestingUser)
+            throw new BadRequestError("Missing requesting user.");
+
+        await AppDataSource.manager.transaction(
+            async (transactionalEntityManager) => {
+                try {
+                    const findRequestingUserAgain =
+                        await userRepository.findOneBy({
+                            id: requestingUser.id
+                        });
+
+                    if (!findRequestingUserAgain)
+                        throw new NotFoundError("User not found.");
+
+                    await transactionalEntityManager.remove(
+                        findRequestingUserAgain
+                    );
+
+                    await this.removeLoginCookies(req, res);
+                } catch (error) {
+                    console.error("Transaction failed:", error);
+                    throw new InternalServerError(
+                        "An error occurred during the deletion process."
+                    );
+                }
+            }
+        );
+
+        return res.status(204).end();
+    }
+
+    /**
+     * Removes the Discord login cookies from the response.
+     * @param req The request object.
+     * @param res The response object.
+     */
+    private async removeLoginCookies(req: AuthRequest, res: Response) {
+        const refreshTokenCookie = req.cookies?.refresh_token;
+        if (!refreshTokenCookie)
+            throw new BadRequestError("No refresh token provided.");
+
+        try {
+            await axios.post(
+                "https://discord.com/api/v10/oauth2/token/revoke",
+                {
+                    token: refreshTokenCookie,
+                    token_type_hint: "refresh_token"
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    auth: {
+                        username: process.env.DISCORD_CLIENT_ID ?? "",
+                        password: process.env.DISCORD_CLIENT_SECRET ?? ""
+                    }
+                }
+            );
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response)
+                throw new Error(error.response.data.message);
+            throw new InternalServerError("Something went wrong.");
+        }
+
+        res.clearCookie("refresh_token");
+        res.clearCookie("authToken");
+    }
+}
