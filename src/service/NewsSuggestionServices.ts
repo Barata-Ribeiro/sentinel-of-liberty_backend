@@ -10,15 +10,24 @@ interface SuggestionDataRequest {
     imageUrl: string;
 }
 
+interface SuggestionDataUpdateRequest {
+    title?: string;
+    content?: string;
+    imageUrl?: string;
+}
+
 export class NewsSuggestionServices {
     async createNewsSuggestion(
         requestingUserId: string,
         suggestionBody: SuggestionDataRequest
-    ) {
+    ): Promise<NewsSuggestionResponseDTO> {
         const actualUser = await userRepository.findOneBy({
             id: requestingUserId
         });
         if (!actualUser) throw new NotFoundError("User not found");
+
+        if (suggestionBody.title.length <= 10)
+            throw new BadRequestError("Title too short.");
 
         if (
             suggestionBody.content.length < 10 ||
@@ -39,5 +48,46 @@ export class NewsSuggestionServices {
         await newsSuggestionRepository.save(newSuggestion);
 
         return NewsSuggestionResponseDTO.fromEntity(newSuggestion, actualUser);
+    }
+
+    async updateNewsSuggestion(
+        newsId: string,
+        suggestionBodyForUpdate: SuggestionDataUpdateRequest
+    ): Promise<NewsSuggestionResponseDTO> {
+        const requiredNews = await newsSuggestionRepository.findOne({
+            where: { id: newsId },
+            relations: ["user"]
+        });
+        if (!requiredNews)
+            throw new NotFoundError("News suggestion not found.");
+
+        const { title, content, imageUrl } = suggestionBodyForUpdate;
+
+        if (title) {
+            if (title.length <= 10)
+                throw new BadRequestError("Title too short.");
+
+            requiredNews.title = title;
+        }
+
+        if (content) {
+            if (content.length < 10 || content.length > 100)
+                throw new BadRequestError(
+                    "Suggestion content must be between 10 and 100 characters"
+                );
+
+            requiredNews.content = content;
+        }
+
+        if (imageUrl) {
+            if (imageUrl.length <= 0)
+                throw new BadRequestError("No image url.");
+
+            requiredNews.image = imageUrl;
+        }
+
+        await newsSuggestionRepository.save(requiredNews);
+
+        return NewsSuggestionResponseDTO.fromEntityWithRelations(requiredNews);
     }
 }
