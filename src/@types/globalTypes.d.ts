@@ -21,17 +21,3 @@ export interface JwtPayloadWithId extends JwtPayload {
      */
     discordId: string;
 }
-
-/**
- * Interface for user data that can be requested from the user.
- */
-export interface UserDataRequest {
-    /**
-     * The 'Sentinel of Liberty' username.
-     */
-    sol_username?: string;
-    /**
-     * The 'Sentinel of Liberty' biography.
-     */
-    sol_biography?: string;
-}
