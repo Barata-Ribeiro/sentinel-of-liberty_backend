@@ -23,6 +23,7 @@ import { AppDataSource } from "./database/data-source";
 
 // Middleware Imports
 import errorMiddleware from "./middleware/ErrorMiddleware";
+import articlesRoutes from "./router/articlesRoutes";
 import suggestionsRoutes from "./router/suggestionsRoutes";
 
 // Database Type Check
@@ -80,6 +81,7 @@ const startServer = async () => {
         app.use("/api/v1/auth", authRoutes);
         app.use("/api/v1/users", usersRoutes);
         app.use("/api/v1/suggestions", suggestionsRoutes);
+        app.use("/api/v1/articles", articlesRoutes);
 
         app.use(errorMiddleware);
 
