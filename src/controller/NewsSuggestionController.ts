@@ -85,7 +85,7 @@ export class NewsSuggestionController {
             throw new NotFoundError("News suggestion not found.");
 
         const newsResponse =
-            NewsSuggestionResponseDTO.fromEntityWithRelations(requiredNews);
+            NewsSuggestionResponseDTO.fromEntity(requiredNews);
 
         return res.status(200).json(newsResponse);
     }

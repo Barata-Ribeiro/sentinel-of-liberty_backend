@@ -47,7 +47,7 @@ export class NewsSuggestionServices {
         newSuggestion.user = actualUser;
         await newsSuggestionRepository.save(newSuggestion);
 
-        return NewsSuggestionResponseDTO.fromEntity(newSuggestion, actualUser);
+        return NewsSuggestionResponseDTO.fromEntity(newSuggestion);
     }
 
     async updateNewsSuggestion(
@@ -88,6 +88,6 @@ export class NewsSuggestionServices {
 
         await newsSuggestionRepository.save(requiredNews);
 
-        return NewsSuggestionResponseDTO.fromEntityWithRelations(requiredNews);
+        return NewsSuggestionResponseDTO.fromEntity(requiredNews);
     }
 }
