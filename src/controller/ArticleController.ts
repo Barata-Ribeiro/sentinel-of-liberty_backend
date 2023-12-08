@@ -7,6 +7,7 @@ import {
     NotFoundError
 } from "../middleware/helper/ApiError";
 import { articleRepository } from "../repository/articleRepository";
+import { userArticleSummaryRepository } from "../repository/articleSummariesRepository";
 import { ArticleServices } from "../service/ArticleServices";
 
 const articleService = new ArticleServices();
@@ -28,11 +29,60 @@ export class ArticleController {
     }
 
     async getAllArticles(req: Request, res: Response) {
-        return res.status(200).json();
+        let { perPage, page } = req.query;
+        let realPage: number;
+        let realTake: number;
+
+        if (perPage) realTake = +perPage;
+        else {
+            perPage = "12";
+            realTake = 12;
+        }
+
+        if (page) realPage = +page === 1 ? 0 : (+page - 1) * realTake;
+        else {
+            realPage = 0;
+            page = "1";
+        }
+
+        const queryBuilder = userArticleSummaryRepository
+            .createQueryBuilder("articleSummary")
+            .orderBy("articleSummary.articleCreatedAt", "DESC")
+            .take(realTake)
+            .skip(realPage);
+
+        const [result, total] = await queryBuilder.getManyAndCount();
+        const hasNextPage = realPage + realTake < total;
+        const backendOrigin =
+            process.env.BACKEND_ORIGIN || "http://localhost:3000";
+
+        return res.status(200).json({
+            data: result,
+            perPage: realTake,
+            page: +page || 1,
+            next: hasNextPage
+                ? `${backendOrigin}/api/v1/articles?perPage=${realTake}&page=${
+                      +page + 1
+                  }`
+                : null,
+            prev:
+                realPage !== 0
+                    ? `${backendOrigin}/api/v1/articles?perPage=${realTake}&page=${
+                          +page - 1
+                      }`
+                    : null
+        });
     }
 
-    async getAllSummaryArticles(req: Request, res: Response) {
-        return res.status(200).json();
+    async getAllSummaryArticles(_req: Request, res: Response) {
+        const response = userArticleSummaryRepository.find({
+            order: {
+                articleCreatedAt: "DESC"
+            },
+            take: 10
+        });
+
+        return res.status(200).json(response);
     }
 
     async getArticleById(req: Request, res: Response) {
