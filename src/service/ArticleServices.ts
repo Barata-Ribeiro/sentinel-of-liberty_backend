@@ -1,3 +1,4 @@
+import { ArticleResponseDTO } from "../dto/ArticleResponseDTO";
 import { Article } from "../entity/Article";
 import { BadRequestError, NotFoundError } from "../middleware/helper/ApiError";
 import { articleRepository } from "../repository/articleRepository";
@@ -12,11 +13,18 @@ interface ArticleDataRequest {
     basedOnNewsSuggestionId?: string;
 }
 
+interface ArticleDataUpdateRequest {
+    title?: string;
+    content?: string;
+    imageUrl?: string;
+    references?: string;
+}
+
 export class ArticleServices {
     async createNewArticle(
         requestingUserId: string,
         articleBody: ArticleDataRequest
-    ): Promise<any> {
+    ): Promise<ArticleResponseDTO> {
         const actualUser = await userRepository.findOneBy({
             id: requestingUserId
         });
@@ -61,7 +69,60 @@ export class ArticleServices {
         }
 
         await articleRepository.save(newArticle);
+
+        return ArticleResponseDTO.fromEntity(newArticle);
     }
 
-    async updateArticle(): Promise<any> {}
+    async updateArticle(
+        articleId: string,
+        articleBodyForUpdate: ArticleDataUpdateRequest
+    ): Promise<ArticleResponseDTO> {
+        const requiredArticle = await articleRepository.findOne({
+            where: { id: articleId },
+            relations: ["user", "basedOnNewsSuggestion"]
+        });
+        if (!requiredArticle)
+            throw new NotFoundError("News suggestion not found.");
+
+        const { title, content, imageUrl, references } = articleBodyForUpdate;
+
+        if (title) {
+            if (title.length <= 10)
+                throw new BadRequestError("Title too short.");
+
+            requiredArticle.title = title;
+        }
+
+        if (content) {
+            if (content.length < 1500 || content.length > 2500)
+                throw new BadRequestError(
+                    "Article content must be between 1500 and 2500 characters."
+                );
+
+            const parsingContentSummary = content.substring(0, 150) + "...";
+
+            requiredArticle.content = content;
+            requiredArticle.contentSummary = parsingContentSummary;
+        }
+
+        if (imageUrl) {
+            if (imageUrl.length <= 0)
+                throw new BadRequestError("No image url.");
+
+            requiredArticle.image = imageUrl;
+        }
+
+        if (references) {
+            if (references.length <= 0)
+                throw new BadRequestError("No references.");
+
+            const parsingReferences = references.split(",");
+
+            requiredArticle.references = parsingReferences;
+        }
+
+        await articleRepository.save(requiredArticle);
+
+        return ArticleResponseDTO.fromEntity(requiredArticle);
+    }
 }
