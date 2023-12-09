@@ -24,6 +24,9 @@ export class Comment {
     })
     likes!: Like[];
 
+    @Column({ type: "int", default: 0 })
+    likeCount!: number;
+
     @ManyToOne(() => User, (user) => user.comments)
     user!: User;
 
