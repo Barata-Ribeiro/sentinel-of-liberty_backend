@@ -7,7 +7,22 @@ const commentServices = new CommentServices();
 
 export class CommentController {
     async createNewComment(req: AuthRequest, res: Response) {
-        return res.status(201).json();
+        const requestingUser = req.user;
+        if (!requestingUser)
+            throw new BadRequestError("Missing requesting user.");
+
+        const articleId = req.params.articleId;
+        if (!articleId) throw new BadRequestError("Missing article id.");
+
+        const commentData = req.body;
+
+        const response = await commentServices.createNewComment(
+            requestingUser.id,
+            articleId,
+            commentData
+        );
+
+        return res.status(201).json(response);
     }
 
     async editComment(req: AuthRequest, res: Response) {
