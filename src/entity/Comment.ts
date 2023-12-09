@@ -43,6 +43,9 @@ export class Comment {
     })
     children!: Comment[];
 
+    @Column({ type: "boolean", default: false })
+    wasEdited!: boolean;
+
     @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt!: Date;
 

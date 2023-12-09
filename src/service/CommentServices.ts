@@ -64,12 +64,13 @@ export class CommentServices {
             where: { id: commentId },
             relations: ["user"]
         });
-
         if (!actualComment) throw new NotFoundError("Comment not found");
+
         if (actualComment.user.id !== userId)
             throw new UnauthorizedError("This is not your comment.");
 
         actualComment.message = commentDataForUpdate.message;
+        actualComment.wasEdited = true;
 
         await commentRepository.save(actualComment);
 

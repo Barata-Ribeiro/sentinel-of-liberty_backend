@@ -9,6 +9,7 @@ export class CommentResponseDTO {
     message!: string;
     parentId?: string;
     likeCount!: number;
+    wasEdited!: boolean;
     createdAt!: Date;
     updatedAt!: Date;
 
@@ -25,8 +26,9 @@ export class CommentResponseDTO {
         dto.user.username =
             comment.user.sol_username ?? comment.user.discordUsername;
         dto.message = comment.message;
-        dto.likeCount = comment.likeCount;
         dto.parentId = comment.parent?.id;
+        dto.likeCount = comment.likeCount;
+        dto.wasEdited = comment.wasEdited;
         dto.createdAt = comment.createdAt;
         dto.updatedAt = comment.updatedAt;
 
