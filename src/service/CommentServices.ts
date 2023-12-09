@@ -2,7 +2,8 @@ import { CommentResponseDTO } from "../dto/CommentResponseDTO";
 import { Comment } from "../entity/Comment";
 import {
     InternalServerError,
-    NotFoundError
+    NotFoundError,
+    UnauthorizedError
 } from "../middleware/helper/ApiError";
 import { articleRepository } from "../repository/articleRepository";
 import { commentRepository } from "../repository/commentRepository";
@@ -12,6 +13,10 @@ import { userRepository } from "../repository/userRepository";
 interface CommentDataRequest {
     message: string;
     parentId?: string;
+}
+
+interface CommentDataUpdateRequest {
+    message: string;
 }
 
 export class CommentServices {
@@ -48,6 +53,27 @@ export class CommentServices {
         await commentRepository.save(newComment);
 
         return CommentResponseDTO.fromEntity(newComment);
+    }
+
+    async updateComment(
+        userId: string,
+        commentId: string,
+        commentDataForUpdate: CommentDataUpdateRequest
+    ): Promise<CommentResponseDTO> {
+        const actualComment = await commentRepository.findOne({
+            where: { id: commentId },
+            relations: ["user"]
+        });
+
+        if (!actualComment) throw new NotFoundError("Comment not found");
+        if (actualComment.user.id !== userId)
+            throw new UnauthorizedError("This is not your comment.");
+
+        actualComment.message = commentDataForUpdate.message;
+
+        await commentRepository.save(actualComment);
+
+        return CommentResponseDTO.fromEntity(actualComment);
     }
 
     async toggleLike(userId: string, commentId: string): Promise<boolean> {

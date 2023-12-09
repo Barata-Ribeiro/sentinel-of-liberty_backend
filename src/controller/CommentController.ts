@@ -12,7 +12,6 @@ export class CommentController {
             throw new BadRequestError("Missing requesting user.");
 
         const articleId = req.params.articleId;
-        if (!articleId) throw new BadRequestError("Missing article id.");
 
         const commentData = req.body;
 
@@ -26,7 +25,22 @@ export class CommentController {
     }
 
     async editComment(req: AuthRequest, res: Response) {
-        return res.status(200).json();
+        const requestingUser = req.user;
+        if (!requestingUser)
+            throw new BadRequestError("Missing requesting user.");
+
+        const commentId = req.params.commentId;
+        if (!commentId) throw new BadRequestError("Missing comment id.");
+
+        const commentDataForUpdate = req.body;
+
+        const response = await commentServices.updateComment(
+            requestingUser.id,
+            commentId,
+            commentDataForUpdate
+        );
+
+        return res.status(200).json(response);
     }
 
     async deleteComment(req: AuthRequest, res: Response) {
@@ -38,11 +52,7 @@ export class CommentController {
         if (!requestingUser)
             throw new BadRequestError("Missing requesting user.");
 
-        const articleId = req.params.articleId;
-        if (!articleId) throw new BadRequestError("Missing article id.");
-
         const commentId = req.params.commentId;
-        if (!commentId) throw new BadRequestError("Missing comment id.");
 
         const response = await commentServices.toggleLike(
             requestingUser.id,
