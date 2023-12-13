@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
+import { In } from "typeorm";
 import { AuthRequest } from "../@types/globalTypes";
 import { AppDataSource } from "../database/data-source";
+import { Like } from "../entity/Like";
 import {
     BadRequestError,
     InternalServerError,
@@ -9,6 +11,7 @@ import {
 } from "../middleware/helper/ApiError";
 import { articleRepository } from "../repository/articleRepository";
 import { userArticleSummaryRepository } from "../repository/articleSummariesRepository";
+import { likeRepository } from "../repository/likeRepository";
 import { ArticleServices } from "../service/ArticleServices";
 
 const articleService = new ArticleServices();
@@ -86,8 +89,53 @@ export class ArticleController {
         return res.status(200).json(response);
     }
 
-    async getArticleById(req: Request, res: Response) {
-        return res.status(200).json();
+    async getArticleById(req: AuthRequest, res: Response) {
+        const articleId = req.params.articleId;
+        if (!articleId) throw new BadRequestError("Missing requesting user.");
+
+        const article = await articleRepository.findOne({
+            where: { id: articleId },
+            relations: [
+                "comments",
+                "comments.likes",
+                "comments.user",
+                "user",
+                "basedOnNewsSuggestion"
+            ],
+            order: {
+                comments: {
+                    createdAt: "DESC"
+                }
+            }
+        });
+        if (!article) throw new NotFoundError("Article not found.");
+
+        let userLikes: Like[] = [];
+        if (req.user) {
+            userLikes = await likeRepository.find({
+                where: {
+                    user: { id: req.user.id },
+                    comment: {
+                        id: In(article.comments.map((comment) => comment.id))
+                    }
+                }
+            });
+        }
+
+        const modifiedComments = article.comments.map((comment) => {
+            return {
+                ...comment,
+                likedByMe: userLikes.some(
+                    (like) => like.comment.id === comment.id
+                ),
+                likeCount: comment.likeCount || comment.likes.length
+            };
+        });
+
+        return res.status(200).json({
+            ...article,
+            comments: modifiedComments
+        });
     }
 
     async updateArticle(req: AuthRequest, res: Response) {
