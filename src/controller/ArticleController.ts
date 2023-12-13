@@ -4,7 +4,8 @@ import { AppDataSource } from "../database/data-source";
 import {
     BadRequestError,
     InternalServerError,
-    NotFoundError
+    NotFoundError,
+    UnauthorizedError
 } from "../middleware/helper/ApiError";
 import { articleRepository } from "../repository/articleRepository";
 import { userArticleSummaryRepository } from "../repository/articleSummariesRepository";
@@ -113,14 +114,20 @@ export class ArticleController {
 
         const articleId = req.params.articleId;
 
-        const requiredArticle = await articleRepository.findOneBy({
-            id: articleId
-        });
-        if (!requiredArticle) throw new NotFoundError("Article not found.");
-
         await AppDataSource.manager.transaction(
             async (transactionalEntityManager) => {
                 try {
+                    const requiredArticle = await articleRepository.findOneBy({
+                        id: articleId
+                    });
+                    if (!requiredArticle)
+                        throw new NotFoundError("Article not found.");
+
+                    if (requestingUser.role !== ("admin" || "moderator"))
+                        throw new UnauthorizedError(
+                            "You are not authorized to delete this comment."
+                        );
+
                     await transactionalEntityManager.remove(requiredArticle);
                 } catch (error) {
                     console.error("Transaction failed:", error);
