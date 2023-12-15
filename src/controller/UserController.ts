@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../@types/globalTypes";
 import { AppDataSource } from "../database/data-source";
 import { UserResponseDTO } from "../dto/UserResponseDTO";
+import { UserRole } from "../entity/User";
 import {
     BadRequestError,
     InternalServerError,
@@ -51,9 +52,15 @@ export class UserController {
     }
 
     async deleteOwnAccount(req: AuthRequest, res: Response): Promise<Response> {
+        const userId = req.params.userId;
         const requestingUser = req.user;
         if (!requestingUser)
             throw new BadRequestError("Missing requesting user.");
+
+        if (requestingUser.id !== userId)
+            throw new BadRequestError(
+                "You can't delete another user's account."
+            );
 
         await AppDataSource.manager.transaction(
             async (transactionalEntityManager) => {
@@ -81,6 +88,54 @@ export class UserController {
         );
 
         return res.status(204).end();
+    }
+
+    async deleteUserAccount(
+        req: AuthRequest,
+        res: Response
+    ): Promise<Response> {
+        const userId = req.params.userId;
+        const requestingUser = req.user;
+        if (!requestingUser)
+            throw new BadRequestError("Missing requesting user.");
+
+        await AppDataSource.manager.transaction(
+            async (transactionalEntityManager) => {
+                try {
+                    const findUserToDelete = await userRepository.findOneBy({
+                        id: userId
+                    });
+
+                    if (!findUserToDelete)
+                        throw new NotFoundError("User not found.");
+
+                    await transactionalEntityManager.remove(findUserToDelete);
+                } catch (error) {
+                    console.error("Transaction failed:", error);
+                    throw new InternalServerError(
+                        "An error occurred during the deletion process."
+                    );
+                }
+            }
+        );
+
+        return res.status(204).end();
+    }
+
+    async banUserById(req: AuthRequest, res: Response): Promise<Response> {
+        const userId = req.params.userId;
+        const requestingUser = req.user;
+        if (!requestingUser)
+            throw new BadRequestError("Missing requesting user.");
+
+        const userToBan = await userRepository.findOneBy({ id: userId });
+        if (!userToBan) throw new NotFoundError("User not found.");
+
+        userToBan.isBanned = true;
+        userToBan.role = UserRole.BANNED;
+        await userRepository.save(userToBan);
+
+        return res.status(200).json({ message: "User has been banned." });
     }
 
     /**

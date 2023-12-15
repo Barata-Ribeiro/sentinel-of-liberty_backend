@@ -16,7 +16,8 @@ export enum UserRole {
     ADMIN = "admin",
     MODERATOR = "moderator",
     WRITER = "writer",
-    READER = "reader"
+    READER = "reader",
+    BANNED = "banned"
 }
 
 @Entity("user_table")
