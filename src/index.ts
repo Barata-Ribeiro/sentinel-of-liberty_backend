@@ -15,7 +15,6 @@ import favicon from "serve-favicon";
 
 // Route Imports
 import authRoutes from "./router/authRoutes";
-import indexRoutes from "./router/indexRoutes";
 import usersRoutes from "./router/usersRoutes";
 
 // Database Import
@@ -78,7 +77,6 @@ const startServer = async () => {
         app.use(express.static(path.join(__dirname, "public")));
 
         // Routes
-        app.use("/api/v1/index", indexRoutes);
         app.use("/api/v1/auth", authRoutes);
         app.use("/api/v1/users", usersRoutes);
         app.use("/api/v1/suggestions", suggestionsRoutes);
