@@ -63,7 +63,7 @@
         "morgan": "^1.10.0",
         "multer": "^1.4.5-lts.1",
         "pg": "^8.11.3",
-        "reflect-metadata": "^0.1.14",
+        "reflect-metadata": "^0.2.1",
         "serve-favicon": "^2.5.0",
         "typeorm": "0.3.17",
         "typeorm-extension": "^3.2.0"
