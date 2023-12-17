@@ -20,11 +20,6 @@ export class AuthController {
             code.toString()
         );
 
-        res.cookie("refresh_token", accessTokenResponse.refresh_token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production" ? true : false
-        });
-
         const userDataResponse =
             await authServices.discordLoginSaveUserToDatabase(
                 accessTokenResponse.access_token
@@ -40,14 +35,11 @@ export class AuthController {
             }
         );
 
-        res.cookie("authToken", userAuthToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production" ? true : false,
-            maxAge: 86400000,
-            expires: new Date(Date.now() + 86400000)
+        return res.status(200).json({
+            authToken: userAuthToken,
+            refreshToken: accessTokenResponse.refresh_token,
+            message: "Login successful."
         });
-
-        return res.status(200).json({ message: "Login successful." });
     }
 
     async discordLogout(req: AuthRequest, res: Response): Promise<Response> {
