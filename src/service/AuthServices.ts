@@ -61,7 +61,7 @@ export class AuthServices {
                     discordId: userData.discordId,
                     discordUsername: userData.username,
                     discordEmail: userData.email,
-                    discordAvatar: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
+                    discordAvatar: `https://cdn.discordapp.com/avatars/${userData.discordId}/${userData.avatar}.png`
                 };
 
                 await userRepository.save(updatedUser);
@@ -71,7 +71,7 @@ export class AuthServices {
                     discordId: userData.discordId,
                     discordUsername: userData.username,
                     discordEmail: userData.email,
-                    discordAvatar: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
+                    discordAvatar: `https://cdn.discordapp.com/avatars/${userData.discordId}/${userData.avatar}.png`
                 });
 
                 await userRepository.save(newUser);
