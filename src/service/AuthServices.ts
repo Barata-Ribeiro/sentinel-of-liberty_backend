@@ -16,6 +16,7 @@ interface AccessTokenResponse {
 
 interface UserResponse {
     id: string;
+    discordId: string;
     username: string;
     global_name: string;
     avatar: string;
@@ -38,7 +39,8 @@ export class AuthServices {
             );
 
             const userData: UserResponse = {
-                id: userResponse.data.id,
+                id: "",
+                discordId: userResponse.data.id,
                 username: userResponse.data.username,
                 global_name: userResponse.data.global_name,
                 avatar: userResponse.data.avatar,
@@ -47,7 +49,7 @@ export class AuthServices {
             };
 
             const checkIfUserExists = await userRepository.findOneBy({
-                discordId: userData.id
+                discordId: userData.discordId
             });
 
             if (checkIfUserExists) {
@@ -56,22 +58,24 @@ export class AuthServices {
 
                 const updatedUser = {
                     ...checkIfUserExists,
-                    discordId: userData.id,
+                    discordId: userData.discordId,
                     discordUsername: userData.username,
                     discordEmail: userData.email,
                     discordAvatar: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
                 };
 
                 await userRepository.save(updatedUser);
+                userData.id = updatedUser.id;
             } else {
                 const newUser = await userRepository.create({
-                    discordId: userData.id,
+                    discordId: userData.discordId,
                     discordUsername: userData.username,
                     discordEmail: userData.email,
                     discordAvatar: `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
                 });
 
                 await userRepository.save(newUser);
+                userData.id = newUser.id;
             }
 
             return userData;

@@ -11,6 +11,10 @@ export class UserResponseDTO {
     isBanned!: boolean;
     createdAt!: Date;
     updatedAt!: Date;
+    newsSuggested?: number;
+    articles?: number;
+    comments?: number;
+    likes?: number;
 
     static fromEntity(user: User): UserResponseDTO {
         const dto = new UserResponseDTO();
@@ -24,6 +28,11 @@ export class UserResponseDTO {
         dto.isBanned = user.isBanned;
         dto.createdAt = user.createdAt;
         dto.updatedAt = user.updatedAt;
+
+        dto.newsSuggested = user.newsSuggested?.length;
+        dto.articles = user.articles?.length;
+        dto.comments = user.comments?.length;
+        dto.likes = user.likes?.length;
 
         return dto;
     }
