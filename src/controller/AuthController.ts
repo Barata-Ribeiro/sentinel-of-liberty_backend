@@ -44,7 +44,7 @@ export class AuthController {
     }
 
     async discordLogout(req: AuthRequest, res: Response): Promise<Response> {
-        const refreshTokenCookie = req.cookies?.refresh_token;
+        const refreshTokenCookie = req.cookies?.refreshToken;
         if (!refreshTokenCookie)
             throw new BadRequestError("No refresh token provided.");
 
@@ -71,8 +71,10 @@ export class AuthController {
             throw new InternalServerError("Something went wrong.");
         }
 
-        res.clearCookie("refresh_token");
         res.clearCookie("authToken");
+        res.clearCookie("refreshToken");
+        res.clearCookie("userData");
+        res.clearCookie("userId");
 
         return res
             .status(200)

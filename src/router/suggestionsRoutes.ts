@@ -20,12 +20,17 @@ router.get("/:newsId", (req, res, next) => {
     newsSuggestionController.getNewsSuggestionById(req, res).catch(next);
 });
 
-router.put("/:newsId", authMiddleware, authModMiddleware, (req, res, next) => {
-    newsSuggestionController.updateNewsSuggestion(req, res).catch(next);
-});
+router.put(
+    "/:newsId/admin",
+    authMiddleware,
+    authModMiddleware,
+    (req, res, next) => {
+        newsSuggestionController.updateNewsSuggestion(req, res).catch(next);
+    }
+);
 
 router.delete(
-    "/:newsId",
+    "/:newsId/admin",
     authMiddleware,
     authAdminMiddleware,
     (req, res, next) => {

@@ -20,7 +20,7 @@ router.put("/:userId", authMiddleware, (req, res, next) => {
     userController.updateOwnAccount(req, res).catch(next);
 });
 
-router.put("/:userId", authMiddleware, authModMiddleware, (req, res, next) => {
+router.put("/:userId/admin", authMiddleware, authModMiddleware, (req, res, next) => {
     userController.banUserById(req, res).catch(next);
 });
 
@@ -29,7 +29,7 @@ router.delete("/:userId", authMiddleware, (req, res, next) => {
 });
 
 router.delete(
-    "/:userId",
+    "/:userId/admin",
     authMiddleware,
     authAdminMiddleware,
     (req, res, next) => {

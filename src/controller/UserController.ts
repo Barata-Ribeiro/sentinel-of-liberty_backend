@@ -144,7 +144,7 @@ export class UserController {
      * @param res The response object.
      */
     private async removeLoginCookies(req: AuthRequest, res: Response) {
-        const refreshTokenCookie = req.cookies?.refresh_token;
+        const refreshTokenCookie = req.cookies?.refreshToken;
         if (!refreshTokenCookie)
             throw new BadRequestError("No refresh token provided.");
 
@@ -171,7 +171,9 @@ export class UserController {
             throw new InternalServerError("Something went wrong.");
         }
 
-        res.clearCookie("refresh_token");
+        res.clearCookie("refreshToken");
         res.clearCookie("authToken");
+        res.clearCookie("userData");
+        res.clearCookie("userId");
     }
 }

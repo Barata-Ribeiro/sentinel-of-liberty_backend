@@ -24,7 +24,7 @@ router.get("/:articleId", (req, res, next) => {
 });
 
 router.put(
-    "/:articleId",
+    "/:articleId/admin",
     authMiddleware,
     authModMiddleware,
     (req, res, next) => {
@@ -33,7 +33,7 @@ router.put(
 );
 
 router.delete(
-    "/:articleId",
+    "/:articleId/admin",
     authMiddleware,
     authModMiddleware,
     (req, res, next) => {
