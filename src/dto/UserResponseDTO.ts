@@ -5,7 +5,7 @@ export class UserResponseDTO {
     discordUsername!: string;
     discordEmail!: string;
     discordAvatar!: string;
-    solUsername!: string;
+    sol_username!: string;
     solBiography!: string;
     role!: UserRole;
     isBanned!: boolean;
@@ -23,7 +23,7 @@ export class UserResponseDTO {
         dto.discordUsername = user.discordUsername;
         dto.discordEmail = user.discordEmail;
         dto.discordAvatar = user.discordAvatar;
-        dto.solUsername = user.sol_username ?? "John/Jane Doe";
+        dto.sol_username = user.sol_username ?? "John/Jane Doe";
         dto.role = user.role;
         dto.isBanned = user.isBanned;
         dto.createdAt = user.createdAt;

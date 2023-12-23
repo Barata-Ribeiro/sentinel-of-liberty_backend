@@ -2,7 +2,7 @@ import { User } from "../entity/User";
 
 export class UserUpdateProfileResponseDTO {
     id!: string;
-    solUsername?: string;
+    sol_username?: string;
     solBiography?: string;
     createdAt!: Date;
     updatedAt!: Date;
@@ -11,7 +11,7 @@ export class UserUpdateProfileResponseDTO {
         const dto = new UserUpdateProfileResponseDTO();
 
         dto.id = user.id;
-        dto.solUsername = user.sol_username ?? "";
+        dto.sol_username = user.sol_username ?? "";
         dto.solBiography = user.sol_biography ?? "";
         dto.createdAt = user.createdAt;
         dto.updatedAt = user.updatedAt;
