@@ -6,6 +6,7 @@ export class NewsSuggestionResponseDTO {
         id: string;
         username: string;
     };
+    source!: string;
     title!: string;
     content!: string;
     image!: string;
@@ -29,6 +30,7 @@ export class NewsSuggestionResponseDTO {
         dto.user.username =
             newsSuggestion.user.sol_username ??
             newsSuggestion.user.discordUsername;
+        dto.source = newsSuggestion.source;
         dto.title = newsSuggestion.title;
         dto.content = newsSuggestion.content;
         dto.image = newsSuggestion.image;

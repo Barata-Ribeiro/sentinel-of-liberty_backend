@@ -18,6 +18,9 @@ export class NewsSuggestion {
     @ManyToOne(() => User, (user) => user.newsSuggested)
     user!: User;
 
+    @Column({ type: "varchar", length: "125", nullable: false })
+    source!: string;
+
     @Column({ type: "varchar", length: "100", nullable: false })
     title!: string;
 

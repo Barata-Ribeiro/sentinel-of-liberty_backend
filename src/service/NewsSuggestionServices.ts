@@ -5,12 +5,14 @@ import { newsSuggestionRepository } from "../repository/newsSuggestionRepository
 import { userRepository } from "../repository/userRepository";
 
 interface SuggestionDataRequest {
+    source: string;
     title: string;
     content: string;
     imageUrl: string;
 }
 
 interface SuggestionDataUpdateRequest {
+    source?: string;
     title?: string;
     content?: string;
     imageUrl?: string;
@@ -25,6 +27,10 @@ export class NewsSuggestionServices {
             id: requestingUserId
         });
         if (!actualUser) throw new NotFoundError("User not found");
+
+        const sourceUrl = new URL(suggestionBody.source);
+        if (sourceUrl.protocol !== "https:")
+            throw new BadRequestError("Invalid source url.");
 
         if (suggestionBody.title.length <= 10)
             throw new BadRequestError("Title too short.");
@@ -41,6 +47,7 @@ export class NewsSuggestionServices {
             throw new BadRequestError("No image url.");
 
         const newSuggestion = new NewsSuggestion();
+        newSuggestion.source = suggestionBody.source;
         newSuggestion.title = suggestionBody.title;
         newSuggestion.content = suggestionBody.content;
         newSuggestion.image = suggestionBody.imageUrl;
@@ -61,7 +68,15 @@ export class NewsSuggestionServices {
         if (!requiredNews)
             throw new NotFoundError("News suggestion not found.");
 
-        const { title, content, imageUrl } = suggestionBodyForUpdate;
+        const { source, title, content, imageUrl } = suggestionBodyForUpdate;
+
+        if (source) {
+            const sourceUrl = new URL(source);
+            if (sourceUrl.protocol !== "https:")
+                throw new BadRequestError("Invalid source url.");
+
+            requiredNews.source = source;
+        }
 
         if (title) {
             if (title.length <= 10)
