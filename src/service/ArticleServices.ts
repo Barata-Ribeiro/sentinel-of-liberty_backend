@@ -47,6 +47,10 @@ export class ArticleServices {
         if (articleBody.imageUrl.length <= 0)
             throw new BadRequestError("No image url.");
 
+        const newImageUrl = new URL(articleBody.imageUrl);
+        if (newImageUrl.protocol !== "https:")
+            throw new BadRequestError("Invalid image url.");
+
         const parsingReferences = articleBody.references.split(",");
         const parsingContentSummary =
             articleBody.content.substring(0, 150) + "...";
@@ -55,7 +59,7 @@ export class ArticleServices {
         newArticle.user = actualUser;
         newArticle.title = articleBody.title;
         newArticle.content = articleBody.content;
-        newArticle.image = articleBody.imageUrl;
+        newArticle.image = newImageUrl.toString();
         newArticle.contentSummary = parsingContentSummary;
         newArticle.references = parsingReferences;
         if (articleBody.basedOnNewsSuggestionId) {
@@ -109,7 +113,11 @@ export class ArticleServices {
             if (imageUrl.length <= 0)
                 throw new BadRequestError("No image url.");
 
-            requiredArticle.image = imageUrl;
+            const newImageUrl = new URL(imageUrl);
+            if (newImageUrl.protocol !== "https:")
+                throw new BadRequestError("Invalid image url.");
+
+            requiredArticle.image = newImageUrl.toString();
         }
 
         if (references) {

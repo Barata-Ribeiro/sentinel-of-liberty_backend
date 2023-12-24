@@ -28,6 +28,9 @@ export class NewsSuggestionServices {
         });
         if (!actualUser) throw new NotFoundError("User not found");
 
+        if (suggestionBody.source.length <= 0)
+            throw new BadRequestError("No source url.");
+
         const sourceUrl = new URL(suggestionBody.source);
         if (sourceUrl.protocol !== "https:")
             throw new BadRequestError("Invalid source url.");
@@ -46,11 +49,15 @@ export class NewsSuggestionServices {
         if (suggestionBody.imageUrl.length <= 0)
             throw new BadRequestError("No image url.");
 
+        const newImageUrl = new URL(suggestionBody.imageUrl);
+        if (newImageUrl.protocol !== "https:")
+            throw new BadRequestError("Invalid image url.");
+
         const newSuggestion = new NewsSuggestion();
         newSuggestion.source = suggestionBody.source;
         newSuggestion.title = suggestionBody.title;
         newSuggestion.content = suggestionBody.content;
-        newSuggestion.image = suggestionBody.imageUrl;
+        newSuggestion.image = newImageUrl.toString();
         newSuggestion.user = actualUser;
         await newsSuggestionRepository.save(newSuggestion);
 
@@ -75,7 +82,7 @@ export class NewsSuggestionServices {
             if (sourceUrl.protocol !== "https:")
                 throw new BadRequestError("Invalid source url.");
 
-            requiredNews.source = source;
+            requiredNews.source = sourceUrl.toString();
         }
 
         if (title) {
