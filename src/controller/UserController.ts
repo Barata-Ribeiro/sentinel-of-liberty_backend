@@ -28,7 +28,10 @@ export class UserController {
     async getUserById(req: Request, res: Response): Promise<Response> {
         const userId = req.params.userId;
 
-        const requiredUser = await userRepository.findOneBy({ id: userId });
+        const requiredUser = await userRepository.findOne({
+            where: { id: userId },
+            relations: ["articles", "newsSuggested", "comments", "likes"]
+        });
         if (!requiredUser) throw new NotFoundError("User not found.");
 
         const userResponse = UserResponseDTO.fromEntity(requiredUser);
