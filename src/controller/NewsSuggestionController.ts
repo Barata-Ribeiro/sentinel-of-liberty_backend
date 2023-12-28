@@ -48,6 +48,7 @@ export class NewsSuggestionController {
         const queryBuilder = newsSuggestionRepository
             .createQueryBuilder("newsSuggestion")
             .leftJoinAndSelect("newsSuggestion.user", "user")
+            .orderBy("newsSuggestion.createdAt", "DESC")
             .take(realTake)
             .skip(realPage);
 
@@ -84,8 +85,7 @@ export class NewsSuggestionController {
         if (!requiredNews)
             throw new NotFoundError("News suggestion not found.");
 
-        const newsResponse =
-            NewsSuggestionResponseDTO.fromEntity(requiredNews);
+        const newsResponse = NewsSuggestionResponseDTO.fromEntity(requiredNews);
 
         return res.status(200).json(newsResponse);
     }
