@@ -8,7 +8,10 @@ import { User } from "./User";
         dataSource
             .createQueryBuilder()
             .select("user.id", "userId")
-            .addSelect("user.discordUsername", "username")
+            .addSelect(
+                "COALESCE(user.sol_username, user.discordUsername)",
+                "username"
+            )
             .addSelect("article.id", "articleId")
             .addSelect("article.title", "articleTitle")
             .addSelect("article.contentSummary", "contentSummary")
