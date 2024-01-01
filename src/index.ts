@@ -14,7 +14,11 @@ import path from "path";
 import favicon from "serve-favicon";
 
 // Route Imports
+import articlesRoutes from "./router/articlesRoutes";
 import authRoutes from "./router/authRoutes";
+import commentsRoutes from "./router/commentsRoutes";
+import homeRoutes from "./router/homeRoutes";
+import suggestionsRoutes from "./router/suggestionsRoutes";
 import usersRoutes from "./router/usersRoutes";
 
 // Database Import
@@ -22,9 +26,6 @@ import { AppDataSource } from "./database/data-source";
 
 // Middleware Imports
 import errorMiddleware from "./middleware/ErrorMiddleware";
-import articlesRoutes from "./router/articlesRoutes";
-import commentsRoutes from "./router/commentsRoutes";
-import suggestionsRoutes from "./router/suggestionsRoutes";
 
 // Database Type Check
 if (AppDataSource.options.type !== "postgres")
@@ -77,6 +78,7 @@ const startServer = async () => {
         app.use(express.static(path.join(__dirname, "public")));
 
         // Routes
+        app.use("/api/v1/home", homeRoutes);
         app.use("/api/v1/auth", authRoutes);
         app.use("/api/v1/users", usersRoutes);
         app.use("/api/v1/suggestions", suggestionsRoutes);
