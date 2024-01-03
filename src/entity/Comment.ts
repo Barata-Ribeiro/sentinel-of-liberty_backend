@@ -1,9 +1,11 @@
 import {
     Column,
+    CreateDateColumn,
     Entity,
     ManyToOne,
     OneToMany,
-    PrimaryGeneratedColumn
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
 } from "typeorm";
 import { Article } from "./Article";
 import { Like } from "./Like";
@@ -46,10 +48,10 @@ export class Comment {
     @Column({ type: "boolean", default: false })
     wasEdited!: boolean;
 
-    @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     createdAt!: Date;
 
-    @Column({
+    @UpdateDateColumn({
         type: "timestamp",
         default: () => "CURRENT_TIMESTAMP",
         onUpdate: "CURRENT_TIMESTAMP"
