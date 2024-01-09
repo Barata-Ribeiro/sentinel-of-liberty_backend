@@ -99,14 +99,13 @@ export class ArticleController {
                 "comments",
                 "comments.likes",
                 "comments.user",
+                "comments.children",
+                "comments.children.user",
+                "comments.children.likes",
                 "user",
                 "basedOnNewsSuggestion"
             ],
-            order: {
-                comments: {
-                    createdAt: "DESC"
-                }
-            }
+            order: { comments: { createdAt: "DESC" } }
         });
         if (!article) throw new NotFoundError("Article not found.");
 
