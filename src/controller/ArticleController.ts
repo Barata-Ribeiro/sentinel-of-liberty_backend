@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { In } from "typeorm";
 import { AuthRequest } from "../@types/globalTypes";
 import { AppDataSource } from "../database/data-source";
+import { CommentResponseDTO } from "../dto/CommentResponseDTO";
 import { Like } from "../entity/Like";
 import { UserRole } from "../entity/User";
 import {
@@ -100,6 +101,7 @@ export class ArticleController {
                 "comments",
                 "comments.likes",
                 "comments.user",
+                "comments.parent",
                 "comments.children",
                 "comments.children.user",
                 "comments.children.likes",
@@ -123,13 +125,11 @@ export class ArticleController {
         }
 
         const modifiedComments = article.comments.map((comment) => {
-            return {
-                ...comment,
-                likedByMe: userLikes.some(
-                    (like) => like.comment.id === comment.id
-                ),
-                likeCount: comment.likeCount || comment.likes.length
-            };
+            const isLikedByCurrentUser = userLikes.some(
+                (like) => like.comment.id === comment.id
+            );
+
+            return CommentResponseDTO.fromEntity(comment, isLikedByCurrentUser);
         });
 
         return res.status(200).json({

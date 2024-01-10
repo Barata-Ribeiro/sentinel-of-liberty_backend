@@ -7,13 +7,18 @@ export class CommentResponseDTO {
         username: string;
     };
     message!: string;
-    parentId?: string;
+    parentId?: string | null;
+    likedByMe?: boolean;
     likeCount!: number;
     wasEdited!: boolean;
     createdAt!: Date;
     updatedAt!: Date;
+    children?: CommentResponseDTO[];
 
-    static fromEntity(comment: Comment): CommentResponseDTO {
+    static fromEntity(
+        comment: Comment,
+        likedByCurrentUser?: boolean
+    ): CommentResponseDTO {
         const dto = new CommentResponseDTO();
 
         dto.user = {
@@ -26,11 +31,17 @@ export class CommentResponseDTO {
         dto.user.username =
             comment.user.sol_username ?? comment.user.discordUsername;
         dto.message = comment.message;
-        dto.parentId = comment.parent?.id;
+        dto.parentId = comment.parent ? comment.parent.id : null;
+        dto.likedByMe = likedByCurrentUser;
         dto.likeCount = comment.likeCount;
         dto.wasEdited = comment.wasEdited;
         dto.createdAt = comment.createdAt;
         dto.updatedAt = comment.updatedAt;
+        dto.children = comment.children
+            ? comment.children.map((child) =>
+                  CommentResponseDTO.fromEntity(child)
+              )
+            : [];
 
         return dto;
     }
