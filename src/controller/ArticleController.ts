@@ -3,6 +3,7 @@ import { In } from "typeorm";
 import { AuthRequest } from "../@types/globalTypes";
 import { AppDataSource } from "../database/data-source";
 import { CommentResponseDTO } from "../dto/CommentResponseDTO";
+import { Comment } from "../entity/Comment";
 import { Like } from "../entity/Like";
 import { UserRole } from "../entity/User";
 import {
@@ -13,6 +14,7 @@ import {
 } from "../middleware/helper/ApiError";
 import { articleRepository } from "../repository/articleRepository";
 import { userArticleSummaryRepository } from "../repository/articleSummariesRepository";
+import { commentRepository } from "../repository/commentRepository";
 import { likeRepository } from "../repository/likeRepository";
 import { ArticleServices } from "../service/ArticleServices";
 
@@ -97,44 +99,32 @@ export class ArticleController {
 
         const article = await articleRepository.findOne({
             where: { id: articleId },
-            relations: [
-                "comments",
-                "comments.likes",
-                "comments.user",
-                "comments.parent",
-                "comments.children",
-                "comments.children.user",
-                "comments.children.likes",
-                "user",
-                "basedOnNewsSuggestion"
-            ],
-            order: { comments: { createdAt: "DESC" } }
+            relations: ["user", "basedOnNewsSuggestion"]
         });
         if (!article) throw new NotFoundError("Article not found.");
 
+        const comments = await commentRepository.find({
+            where: { article: { id: articleId } },
+            relations: ["user", "likes", "parent"]
+        });
+
+        // Fetch likes by the current user for these comments
         let userLikes: Like[] = [];
         if (req.user) {
             userLikes = await likeRepository.find({
                 where: {
                     user: { id: req.user.id },
-                    comment: {
-                        id: In(article.comments.map((comment) => comment.id))
-                    }
+                    comment: { id: In(comments.map((comment) => comment.id)) }
                 }
             });
         }
 
-        const modifiedComments = article.comments.map((comment) => {
-            const isLikedByCurrentUser = userLikes.some(
-                (like) => like.comment.id === comment.id
-            );
-
-            return CommentResponseDTO.fromEntity(comment, isLikedByCurrentUser);
-        });
+        // Start building the comment tree with root comments
+        const nestedComments = this.buildNestedComments(comments, userLikes);
 
         return res.status(200).json({
             ...article,
-            comments: modifiedComments
+            comments: nestedComments
         });
     }
 
@@ -191,5 +181,38 @@ export class ArticleController {
         );
 
         return res.status(204).end();
+    }
+
+    private buildNestedComments(
+        comments: Comment[],
+        userLikes: Like[],
+        parentId: string | null = null
+    ): CommentResponseDTO[] {
+        // Filter and map the comments
+        return comments
+            .filter((comment) => {
+                // If parentId is null, find root comments, else find children of the given parentId
+                return parentId === null
+                    ? !comment.parent
+                    : comment.parent?.id === parentId;
+            })
+            .map((comment) => {
+                const likedByCurrentUser = userLikes.some(
+                    (like) => like.comment.id === comment.id
+                );
+                const commentDTO = CommentResponseDTO.fromEntity(
+                    comment,
+                    likedByCurrentUser
+                );
+
+                // Recursive call to build children comments
+                commentDTO.children = this.buildNestedComments(
+                    comments,
+                    userLikes,
+                    comment.id
+                );
+
+                return commentDTO;
+            });
     }
 }
