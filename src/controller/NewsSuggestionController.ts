@@ -2,10 +2,12 @@ import { Request, Response } from "express";
 import { AuthRequest } from "../@types/globalTypes";
 import { AppDataSource } from "../database/data-source";
 import { NewsSuggestionResponseDTO } from "../dto/NewsSuggestionResponseDTO";
+import { UserRole } from "../entity/User";
 import {
     BadRequestError,
     InternalServerError,
-    NotFoundError
+    NotFoundError,
+    UnauthorizedError
 } from "../middleware/helper/ApiError";
 import { newsSuggestionRepository } from "../repository/newsSuggestionRepository";
 import { NewsSuggestionServices } from "../service/NewsSuggestionServices";
@@ -114,15 +116,26 @@ export class NewsSuggestionController {
 
         const newsId = req.params.newsId;
 
-        const requiredNews = await newsSuggestionRepository.findOneBy({
-            id: newsId
-        });
-        if (!requiredNews)
-            throw new NotFoundError("News suggestion not found.");
-
         await AppDataSource.manager.transaction(
             async (transactionalEntityManager) => {
                 try {
+                    const requiredNews = await newsSuggestionRepository.findOne(
+                        {
+                            where: { id: newsId },
+                            relations: ["user"]
+                        }
+                    );
+                    if (!requiredNews)
+                        throw new NotFoundError("News suggestion not found.");
+
+                    if (
+                        requestingUser.role !== UserRole.ADMIN &&
+                        requestingUser.role !== UserRole.MODERATOR
+                    )
+                        throw new UnauthorizedError(
+                            "You are not authorized to delete this comment."
+                        );
+
                     await transactionalEntityManager.remove(requiredNews);
                 } catch (error) {
                     console.error("Transaction failed:", error);

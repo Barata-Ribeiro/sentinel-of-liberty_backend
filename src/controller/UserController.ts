@@ -69,8 +69,14 @@ export class UserController {
             async (transactionalEntityManager) => {
                 try {
                     const findRequestingUserAgain =
-                        await userRepository.findOneBy({
-                            id: requestingUser.id
+                        await userRepository.findOne({
+                            where: { id: userId },
+                            relations: [
+                                "articles",
+                                "comments",
+                                "newsSuggested",
+                                "likes"
+                            ]
                         });
 
                     if (!findRequestingUserAgain)
@@ -105,8 +111,14 @@ export class UserController {
         await AppDataSource.manager.transaction(
             async (transactionalEntityManager) => {
                 try {
-                    const findUserToDelete = await userRepository.findOneBy({
-                        id: userId
+                    const findUserToDelete = await userRepository.findOne({
+                        where: { id: userId },
+                        relations: [
+                            "articles",
+                            "comments",
+                            "newsSuggested",
+                            "likes"
+                        ]
                     });
 
                     if (!findUserToDelete)

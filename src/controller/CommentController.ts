@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { AuthRequest } from "../@types/globalTypes";
 import { AppDataSource } from "../database/data-source";
+import { UserRole } from "../entity/User";
 import {
     BadRequestError,
     InternalServerError,
@@ -61,20 +62,23 @@ export class CommentController {
         await AppDataSource.manager.transaction(
             async (transactionalEntityManager) => {
                 try {
-                    const requiredComment = await commentRepository.findOneBy({
-                        id: commentId
+                    const requiredComment = await commentRepository.findOne({
+                        where: { id: commentId },
+                        relations: ["user"]
                     });
 
                     if (!requiredComment)
                         throw new NotFoundError("Comment not found.");
 
                     if (
-                        requiredComment.user.id !== requestingUser.id ||
-                        requestingUser.role !== ("admin" || "moderator")
-                    )
+                        requiredComment.user.id !== requestingUser.id &&
+                        requestingUser.role !== UserRole.ADMIN &&
+                        requestingUser.role !== UserRole.MODERATOR
+                    ) {
                         throw new UnauthorizedError(
                             "You are not authorized to delete this comment."
                         );
+                    }
 
                     await transactionalEntityManager.remove(requiredComment);
                 } catch (error) {

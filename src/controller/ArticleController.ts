@@ -3,6 +3,7 @@ import { In } from "typeorm";
 import { AuthRequest } from "../@types/globalTypes";
 import { AppDataSource } from "../database/data-source";
 import { Like } from "../entity/Like";
+import { UserRole } from "../entity/User";
 import {
     BadRequestError,
     InternalServerError,
@@ -164,13 +165,17 @@ export class ArticleController {
         await AppDataSource.manager.transaction(
             async (transactionalEntityManager) => {
                 try {
-                    const requiredArticle = await articleRepository.findOneBy({
-                        id: articleId
+                    const requiredArticle = await articleRepository.findOne({
+                        where: { id: articleId },
+                        relations: ["user", "comments"]
                     });
                     if (!requiredArticle)
                         throw new NotFoundError("Article not found.");
 
-                    if (requestingUser.role !== ("admin" || "moderator"))
+                    if (
+                        requestingUser.role !== UserRole.ADMIN &&
+                        requestingUser.role !== UserRole.MODERATOR
+                    )
                         throw new UnauthorizedError(
                             "You are not authorized to delete this comment."
                         );
