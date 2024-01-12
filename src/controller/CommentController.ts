@@ -99,6 +99,7 @@ export class CommentController {
             throw new BadRequestError("Missing requesting user.");
 
         const commentId = req.params.commentId;
+        if (!commentId) throw new BadRequestError("Missing comment id.");
 
         const response = await commentServices.toggleLike(
             requestingUser.id,
@@ -106,7 +107,8 @@ export class CommentController {
         );
 
         return res.status(200).json({
-            message: response ? "Like added." : "Like removed."
+            message: response ? "Like added." : "Like removed.",
+            liked: response
         });
     }
 }
