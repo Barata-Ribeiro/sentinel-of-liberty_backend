@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ArticleController } from "../controller/ArticleController";
 import authMiddleware from "../middleware/AuthMiddleware";
 import authModMiddleware from "../middleware/AuthModMiddleware";
+import OptionalAuthMiddleware from "../middleware/OptionalAuthMiddleware";
 
 const router = Router();
 
@@ -19,7 +20,7 @@ router.get("/", (req, res, next) => {
     articleController.getAllSummaryArticles(req, res).catch(next);
 });
 
-router.get("/:articleId", (req, res, next) => {
+router.get("/:articleId", OptionalAuthMiddleware, (req, res, next) => {
     articleController.getArticleById(req, res).catch(next);
 });
 

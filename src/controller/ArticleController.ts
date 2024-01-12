@@ -95,8 +95,10 @@ export class ArticleController {
     }
 
     async getArticleById(req: AuthRequest, res: Response) {
+        const requestingUser = req.user;
+
         const articleId = req.params.articleId;
-        if (!articleId) throw new BadRequestError("Missing requesting user.");
+        if (!articleId) throw new BadRequestError("Missing article id.");
 
         const article = await articleRepository.findOne({
             where: { id: articleId },
@@ -111,18 +113,17 @@ export class ArticleController {
             relations: ["user", "likes", "parent"]
         });
 
-        // Fetch likes by the current user for these comments
         let userLikes: Like[] = [];
-        if (req.user) {
+        if (requestingUser) {
             userLikes = await likeRepository.find({
                 where: {
-                    user: { id: req.user.id },
+                    user: { id: requestingUser.id },
                     comment: { id: In(comments.map((comment) => comment.id)) }
-                }
+                },
+                relations: ["comment", "user"]
             });
         }
 
-        // Start building the comment tree with root comments
         const nestedComments = this.buildNestedComments(comments, userLikes);
 
         return res.status(200).json({
@@ -191,7 +192,6 @@ export class ArticleController {
         userLikes: Like[],
         parentId: string | null = null
     ): CommentResponseDTO[] {
-        // Filter and map the comments
         return comments
             .filter((comment) => {
                 // If parentId is null, find root comments, else find children of the given parentId
