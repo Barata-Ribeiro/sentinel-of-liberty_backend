@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { In } from "typeorm";
 import { AuthRequest } from "../@types/globalTypes";
 import { AppDataSource } from "../database/data-source";
+import { ArticleResponseDTO } from "../dto/ArticleResponseDTO";
 import { CommentResponseDTO } from "../dto/CommentResponseDTO";
 import { Comment } from "../entity/Comment";
 import { Like } from "../entity/Like";
@@ -103,6 +104,8 @@ export class ArticleController {
         });
         if (!article) throw new NotFoundError("Article not found.");
 
+        const articleToDTO = ArticleResponseDTO.fromEntity(article);
+
         const comments = await commentRepository.find({
             where: { article: { id: articleId } },
             relations: ["user", "likes", "parent"]
@@ -123,7 +126,7 @@ export class ArticleController {
         const nestedComments = this.buildNestedComments(comments, userLikes);
 
         return res.status(200).json({
-            ...article,
+            ...articleToDTO,
             comments: nestedComments
         });
     }

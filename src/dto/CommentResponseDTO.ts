@@ -5,6 +5,7 @@ export class CommentResponseDTO {
     user!: {
         id: string;
         username: string;
+        avatar: string;
     };
     message!: string;
     parentId?: string | null;
@@ -23,13 +24,15 @@ export class CommentResponseDTO {
 
         dto.user = {
             id: comment.user.id,
-            username: comment.user.sol_username ?? comment.user.discordUsername
+            username: comment.user.sol_username ?? comment.user.discordUsername,
+            avatar: comment.user.discordAvatar
         };
 
         dto.id = comment.id;
         dto.user.id = comment.user.id;
         dto.user.username =
             comment.user.sol_username ?? comment.user.discordUsername;
+        dto.user.avatar = comment.user.discordAvatar;
         dto.message = comment.message;
         dto.parentId = comment.parent ? comment.parent.id : null;
         dto.likedByMe = likedByCurrentUser;
