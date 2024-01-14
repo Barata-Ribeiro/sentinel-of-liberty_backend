@@ -4,7 +4,7 @@ import { userArticleSummaryRepository } from "../repository/articleSummariesRepo
 import { newsSuggestionRepository } from "../repository/newsSuggestionRepository";
 
 export class HomeController {
-    async getHomeContent(req: Request, res: Response): Promise<Response> {
+    async getHomeContent(_req: Request, res: Response): Promise<Response> {
         const firstTenArticles = await userArticleSummaryRepository.find({
             take: 10,
             order: { articleCreatedAt: "DESC" }

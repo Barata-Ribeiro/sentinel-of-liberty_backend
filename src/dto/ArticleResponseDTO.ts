@@ -5,6 +5,7 @@ export class ArticleResponseDTO {
     user!: {
         id: string;
         username: string;
+        avatar: string;
     };
     title!: string;
     content!: string;
@@ -14,6 +15,7 @@ export class ArticleResponseDTO {
     basedOnNewsSuggestion?: {
         id: string;
         title: string;
+        source: string;
     };
     createdAt!: Date;
     updatedAt!: Date;
@@ -23,7 +25,8 @@ export class ArticleResponseDTO {
 
         dto.user = {
             id: article.user.id,
-            username: article.user.sol_username ?? article.user.discordUsername
+            username: article.user.sol_username ?? article.user.discordUsername,
+            avatar: article.user.discordAvatar
         };
 
         dto.id = article.id;
@@ -38,7 +41,8 @@ export class ArticleResponseDTO {
         if (article.basedOnNewsSuggestion) {
             dto.basedOnNewsSuggestion = {
                 id: article.basedOnNewsSuggestion.id,
-                title: article.basedOnNewsSuggestion.title
+                title: article.basedOnNewsSuggestion.title,
+                source: article.basedOnNewsSuggestion.source
             };
         }
         dto.createdAt = article.createdAt;
