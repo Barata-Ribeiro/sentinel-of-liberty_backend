@@ -14,7 +14,7 @@ const authMiddleware = async (
     next: NextFunction
 ): Promise<void> => {
     try {
-        const authToken = req.cookies?.authToken;
+        const authToken = req.headers.authorization?.split(" ")[1];
         if (!authToken)
             throw new BadRequestError("No authentication token provided.");
 
