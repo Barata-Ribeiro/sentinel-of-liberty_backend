@@ -55,12 +55,15 @@ export class NewsSuggestionController {
             .skip(realPage);
 
         const [result, total] = await queryBuilder.getManyAndCount();
+        const resultToDTO = result.map((newsSuggestion) =>
+            NewsSuggestionResponseDTO.fromEntity(newsSuggestion)
+        );
         const hasNextPage = realPage + realTake < total;
         const backendOrigin =
             process.env.BACKEND_ORIGIN || "http://localhost:3000";
 
         return res.status(200).json({
-            data: result,
+            data: resultToDTO,
             perPage: realTake,
             page: +page || 1,
             next: hasNextPage

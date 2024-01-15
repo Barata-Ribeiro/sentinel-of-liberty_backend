@@ -48,7 +48,10 @@ export class CommentController {
             commentDataForUpdate
         );
 
-        return res.status(200).json(response);
+        return res.status(200).json({
+            ...response,
+            message: "Comment updated successfully."
+        });
     }
 
     async deleteComment(req: AuthRequest, res: Response) {
@@ -90,7 +93,9 @@ export class CommentController {
             }
         );
 
-        return res.status(204).json();
+        return res
+            .status(204)
+            .json({ message: "Comment deleted successfully." });
     }
 
     async toggleLike(req: AuthRequest, res: Response) {
