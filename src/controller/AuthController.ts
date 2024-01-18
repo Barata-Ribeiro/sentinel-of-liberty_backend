@@ -39,7 +39,7 @@ export class AuthController {
             id: userDataResponse.id,
             authToken: userAuthToken,
             refreshToken: accessTokenResponse.refresh_token,
-            message: "Login successful."
+            message: "You have successfully logged in!"
         });
     }
 

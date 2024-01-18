@@ -34,7 +34,9 @@ export class ArticleController {
             articleData
         );
 
-        return res.status(201).json(response);
+        return res
+            .status(201)
+            .json({ ...response, message: "Article created successfully." });
     }
 
     async getAllArticles(req: Request, res: Response) {
@@ -146,7 +148,9 @@ export class ArticleController {
             articleDataForUpdate
         );
 
-        return res.status(200).json(response);
+        return res
+            .status(200)
+            .json({ ...response, message: "Article updated successfully." });
     }
 
     async deleteArticle(req: AuthRequest, res: Response) {
@@ -184,7 +188,9 @@ export class ArticleController {
             }
         );
 
-        return res.status(204).end();
+        return res
+            .status(204)
+            .end({ message: "Article deleted successfully." });
     }
 
     private buildNestedComments(

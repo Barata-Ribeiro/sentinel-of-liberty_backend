@@ -51,7 +51,10 @@ export class UserController {
             requestingUser
         );
 
-        return res.status(200).json(response);
+        return res.status(200).json({
+            ...response,
+            message: "You successfully updated the account."
+        });
     }
 
     async deleteOwnAccount(req: AuthRequest, res: Response): Promise<Response> {
@@ -96,7 +99,9 @@ export class UserController {
             }
         );
 
-        return res.status(204).end();
+        return res
+            .status(204)
+            .end({ message: "Account deleted successfully." });
     }
 
     async deleteUserAccount(
@@ -134,7 +139,9 @@ export class UserController {
             }
         );
 
-        return res.status(204).end();
+        return res
+            .status(204)
+            .end({ message: "Account deleted successfully." });
     }
 
     async banUserById(req: AuthRequest, res: Response): Promise<Response> {

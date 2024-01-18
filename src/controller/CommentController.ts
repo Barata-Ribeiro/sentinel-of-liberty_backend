@@ -29,7 +29,9 @@ export class CommentController {
             commentData
         );
 
-        return res.status(201).json(response);
+        return res
+            .status(201)
+            .json({ ...response, message: "Comment created successfully." });
     }
 
     async editComment(req: AuthRequest, res: Response) {

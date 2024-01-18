@@ -27,7 +27,10 @@ export class NewsSuggestionController {
             suggestionData
         );
 
-        return res.status(201).json(response);
+        return res.status(201).json({
+            ...response,
+            message: "News suggestion created successfully."
+        });
     }
 
     async getAllNewsSuggestions(req: Request, res: Response) {
@@ -109,7 +112,10 @@ export class NewsSuggestionController {
             suggestionDataForUpdate
         );
 
-        return res.status(200).json(response);
+        return res.status(200).json({
+            ...response,
+            message: "News suggestion updated successfully."
+        });
     }
 
     async deleteNewsSuggestion(req: AuthRequest, res: Response) {
@@ -149,6 +155,8 @@ export class NewsSuggestionController {
             }
         );
 
-        return res.status(204).end();
+        return res
+            .status(204)
+            .end({ message: "News suggestion deleted successfully." });
     }
 }
