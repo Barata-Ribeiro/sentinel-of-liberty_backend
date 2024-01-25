@@ -8,6 +8,19 @@ import {
     UnauthorizedError
 } from "./helper/ApiError";
 
+/**
+ * Middleware function for authentication.
+ * Verifies the authentication token provided in the request headers,
+ * retrieves the user associated with the token, and attaches it to the request object.
+ * If the token is invalid or expired, it throws an error.
+ *
+ * @param req - The request object.
+ * @param _res - The response object.
+ * @param next - The next function to call.
+ * @throws {BadRequestError} If no authentication token is provided.
+ * @throws {NotFoundError} If the secret key is not found or the user is not found.
+ * @throws {UnauthorizedError} If the token is invalid or expired.
+ */
 const authMiddleware = async (
     req: AuthRequest,
     _res: Response,

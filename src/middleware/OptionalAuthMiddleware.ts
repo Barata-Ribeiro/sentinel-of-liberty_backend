@@ -4,6 +4,20 @@ import { AuthRequest, JwtPayloadWithId } from "../@types/globalTypes";
 import { userRepository } from "../repository/userRepository";
 import { NotFoundError, UnauthorizedError } from "./helper/ApiError";
 
+/**
+ * Middleware function that handles optional authentication.
+ * If an authorization token is provided in the request headers, it verifies the token,
+ * retrieves the corresponding user, and attaches it to the request object.
+ * If no token is provided, it simply calls the next middleware.
+ * It functions similarly to the authMiddleware function, but it does not throw an error if no token is provided.
+ * @see authMiddleware
+ *
+ * @param req - The request object.
+ * @param _res - The response object.
+ * @param next - The next middleware function.
+ * @throws {NotFoundError} If the secret key is not found or the user is not found.
+ * @throws {UnauthorizedError} If the token is invalid or expired.
+ */
 const OptionalAuthMiddleware = async (
     req: AuthRequest,
     _res: Response,
