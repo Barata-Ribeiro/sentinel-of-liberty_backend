@@ -14,6 +14,19 @@ import { CommentServices } from "../service/CommentServices";
 const commentServices = new CommentServices();
 
 export class CommentController {
+    /**
+     * Creates a new comment for a specific article. It requires the article ID to be provided in the request parameters. The comment data is:
+     * - message: The comment's message.
+     * - parentId (OPTIONAL): The comment's parent ID.
+     *
+     * The parentId is provided by the client if the comment is a
+     * reply to another comment. If it is not provided, it means that the comment is a reply to the article itself, that is, a top-level comment, and parentId is null.
+     *
+     * @param req - The request object.
+     * @param res - The response object.
+     * @returns The created comment and a success message.
+     * @throws {BadRequestError} if the requesting user is missing.
+     */
     async createNewComment(req: AuthRequest, res: Response) {
         const requestingUser = req.user;
         if (!requestingUser)
@@ -34,6 +47,17 @@ export class CommentController {
             .json({ ...response, message: "Comment created successfully." });
     }
 
+    /**
+     * Edits a comment. It requires the comment ID to be provided in the request parameters. The comment data is:
+     * - message: The comment's message.
+     *
+     * The parentId is not required since the editing operation does not change the comment's parent. The identification occurs by the comment ID provided in the route's URL.
+     *
+     * @param req - The request object.
+     * @param res - The response object.
+     * @returns The updated comment and a success message.
+     * @throws {BadRequestError} if the requesting user or comment id is missing.
+     */
     async editComment(req: AuthRequest, res: Response) {
         const requestingUser = req.user;
         if (!requestingUser)
@@ -56,6 +80,18 @@ export class CommentController {
         });
     }
 
+    /**
+     * Deletes a comment. Uses TypeORM's transactions to delete the comment and its likes to guarantee data integrity and consistency.
+     * If fails, it will rollback the transaction and no data will be deleted.
+     *
+     * @param req - The request object.
+     * @param res - The response object.
+     * @returns A response with status 204 if the comment is deleted successfully.
+     * @throws {BadRequestError} if the requesting user or comment id is missing.
+     * @throws {NotFoundError} if the comment is not found.
+     * @throws {UnauthorizedError} if the requesting user is not authorized to delete the comment.
+     * @throws {InternalServerError} if an error occurs during the deletion process.
+     */
     async deleteComment(req: AuthRequest, res: Response) {
         const requestingUser = req.user;
         if (!requestingUser)
@@ -100,6 +136,17 @@ export class CommentController {
             .json({ message: "Comment deleted successfully." });
     }
 
+    /**
+     * Toggles the like status of a comment. If the user has already liked the comment, it will remove the like from the database.
+     * Otherwise, it will add a new like to the database.
+     * It requires the comment ID to be provided in the request parameters.
+     *
+     * @param req - The request object containing the authenticated user.
+     * @param res - The response object to send the result.
+     * @returns A JSON response indicating whether the like was added or removed.
+     * It also returns a boolean indicating the current like status.
+     * @throws {BadRequestError} if the requesting user or comment id is missing.
+     */
     async toggleLike(req: AuthRequest, res: Response) {
         const requestingUser = req.user;
         if (!requestingUser)
