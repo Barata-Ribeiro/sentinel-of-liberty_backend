@@ -9,6 +9,14 @@ interface UserDataRequest {
 }
 
 export class UserServices {
+    /**
+     * Updates the account information of the requesting user
+     * .
+     * @param userData - The updated user data.
+     * @param requestingUser - The user who is requesting the account update.
+     * @returns The updated user profile response DTO.
+     * @throws {ConflictError} - If the username is already taken.
+     */
     async updateOwnAccount(userData: UserDataRequest, requestingUser: User) {
         const { sol_username, sol_biography } = userData;
 

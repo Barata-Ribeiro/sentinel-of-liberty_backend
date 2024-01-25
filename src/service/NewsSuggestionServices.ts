@@ -19,6 +19,15 @@ interface SuggestionDataUpdateRequest {
 }
 
 export class NewsSuggestionServices {
+    /**
+     * Creates a news suggestion.
+     *
+     * @param requestingUserId - The ID of the user making the suggestion.
+     * @param suggestionBody - The data for the suggestion.
+     * @returns A promise that resolves to the created news suggestion.
+     * @throws {NotFoundError} If the user is not found.
+     * @throws {BadRequestError} If the source URL is invalid, the title is too short, the content length is invalid, or the image URL is invalid.
+     */
     async createNewsSuggestion(
         requestingUserId: string,
         suggestionBody: SuggestionDataRequest
@@ -64,6 +73,15 @@ export class NewsSuggestionServices {
         return NewsSuggestionResponseDTO.fromEntity(newSuggestion);
     }
 
+    /**
+     * Updates a news suggestion with the provided data.
+     *
+     * @param newsId - The ID of the news suggestion to update.
+     * @param suggestionBodyForUpdate - The data to update the news suggestion with.
+     * @returns A promise that resolves to the updated news suggestion.
+     * @throws {NotFoundError} If the news suggestion is not found.
+     * @throws {BadRequestError} If the provided data is invalid.
+     */
     async updateNewsSuggestion(
         newsId: string,
         suggestionBodyForUpdate: SuggestionDataUpdateRequest

@@ -21,6 +21,15 @@ interface ArticleDataUpdateRequest {
 }
 
 export class ArticleServices {
+    /**
+     * Creates a new article.
+     *
+     * @param requestingUserId - The ID of the user making the request.
+     * @param articleBody - The data of the article to be created.
+     * @returns A promise that resolves to the created article response DTO.
+     * @throws {NotFoundError} If the requesting user is not found.
+     * @throws {BadRequestError} If the title is too short, the article content length is invalid, there are no references, or the image URL is invalid.
+     */
     async createNewArticle(
         requestingUserId: string,
         articleBody: ArticleDataRequest
@@ -77,6 +86,15 @@ export class ArticleServices {
         return ArticleResponseDTO.fromEntity(newArticle);
     }
 
+    /**
+     * Updates an article with the specified articleId using the provided articleBodyForUpdate.
+     *
+     * @param articleId - The ID of the article to be updated.
+     * @param articleBodyForUpdate - The updated article data.
+     * @returns A promise that resolves to the updated article response DTO.
+     * @throws {NotFoundError} if the article with the specified ID is not found.
+     * @throws {BadRequestError} if the provided data is invalid.
+     */
     async updateArticle(
         articleId: string,
         articleBodyForUpdate: ArticleDataUpdateRequest

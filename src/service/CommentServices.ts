@@ -20,6 +20,15 @@ interface CommentDataUpdateRequest {
 }
 
 export class CommentServices {
+    /**
+     * Creates a new comment.
+     *
+     * @param userId - The ID of the user creating the comment.
+     * @param articleId - The ID of the article the comment belongs to.
+     * @param commentData - The data for the new comment.
+     * @returns A promise that resolves to the created comment response DTO.
+     * @throws {NotFoundError} If the user, article, or parent comment (if specified) is not found.
+     */
     async createNewComment(
         userId: string,
         articleId: string,
@@ -55,6 +64,16 @@ export class CommentServices {
         return CommentResponseDTO.fromEntity(newComment);
     }
 
+    /**
+     * Updates a comment.
+     *
+     * @param userId - The ID of the user making the update.
+     * @param commentId - The ID of the comment to be updated.
+     * @param commentDataForUpdate - The updated comment data.
+     * @returns A promise that resolves to the updated comment response DTO.
+     * @throws {NotFoundError} If the comment is not found.
+     * @throws {UnauthorizedError} If the user is not authorized to update the comment.
+     */
     async updateComment(
         userId: string,
         commentId: string,
@@ -77,6 +96,16 @@ export class CommentServices {
         return CommentResponseDTO.fromEntity(actualComment);
     }
 
+    /**
+     * Toggles the like status of a comment for a given user.
+     * If the user has already liked the comment, the like is removed.
+     * If the user has not liked the comment, a new like is created.
+     *
+     * @param {string} userId - The ID of the user.
+     * @param {string} commentId - The ID of the comment.
+     * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating whether the comment is liked or not.
+     * @throws {InternalServerError} - If an error occurs while toggling the like.
+     */
     async toggleLike(userId: string, commentId: string): Promise<boolean> {
         let like;
         let liked;

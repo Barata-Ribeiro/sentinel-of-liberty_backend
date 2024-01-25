@@ -25,6 +25,14 @@ interface UserResponse {
 }
 
 export class AuthServices {
+    /**
+     * Saves user data to the database after logging in with Discord.
+     *
+     * @param token - The Discord access token.
+     * @returns A promise that resolves to a UserResponse object containing the user data.
+     * @throws {ForbiddenError} If the user is banned.
+     * @throws {InternalServerError} If an error occurs during the process.
+     */
     async discordLoginSaveUserToDatabase(token: string): Promise<UserResponse> {
         try {
             const userResponse = await axios.get(
@@ -86,6 +94,13 @@ export class AuthServices {
         }
     }
 
+    /**
+     * Performs a Discord login redirect and retrieves an access and refresh tokens.
+     *
+     * @param code The authorization code obtained from the Discord OAuth2 flow.
+     * @returns A promise that resolves to an AccessTokenResponse object containing the access and refresh tokens.
+     * @throws If an error occurs during the login redirect process.
+     */
     async discordLoginRedirect(code: string): Promise<AccessTokenResponse> {
         const formData = new url.URLSearchParams();
         formData.append("client_id", process.env.DISCORD_CLIENT_ID || "");
