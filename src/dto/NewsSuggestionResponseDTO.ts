@@ -1,5 +1,8 @@
 import { NewsSuggestion } from "../entity/NewsSuggestion";
 
+/**
+ * Represents a response DTO for a news suggestion.
+ */
 export class NewsSuggestionResponseDTO {
     id!: string;
     user!: {
@@ -13,6 +16,13 @@ export class NewsSuggestionResponseDTO {
     createdAt!: Date;
     updatedAt!: Date;
 
+    /**
+     * Converts a NewsSuggestion entity to a NewsSuggestionResponseDTO.
+     *
+     * @param newsSuggestion - The NewsSuggestion entity to convert.
+     * @returns The converted NewsSuggestionResponseDTO.
+     * @see NewsSuggestion
+     */
     static fromEntity(
         newsSuggestion: NewsSuggestion
     ): NewsSuggestionResponseDTO {

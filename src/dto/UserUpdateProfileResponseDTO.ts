@@ -1,5 +1,8 @@
 import { User } from "../entity/User";
 
+/**
+ * Represents the response DTO for updating a user's profile.
+ */
 export class UserUpdateProfileResponseDTO {
     id!: string;
     sol_username?: string;
@@ -7,6 +10,13 @@ export class UserUpdateProfileResponseDTO {
     createdAt!: Date;
     updatedAt!: Date;
 
+    /**
+     * Creates a UserUpdateProfileResponseDTO instance from a User entity.
+     *
+     * @param user The User entity to create the DTO from.
+     * @returns The created UserUpdateProfileResponseDTO instance.
+     * @see User
+     */
     static fromEntity(user: User): UserUpdateProfileResponseDTO {
         const dto = new UserUpdateProfileResponseDTO();
 

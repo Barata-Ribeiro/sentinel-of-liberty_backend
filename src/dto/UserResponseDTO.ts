@@ -1,5 +1,8 @@
 import { User, UserRole } from "../entity/User";
 
+/**
+ * Represents a Data Transfer Object (DTO) for a user response.
+ */
 export class UserResponseDTO {
     id!: string;
     discordUsername!: string;
@@ -16,6 +19,13 @@ export class UserResponseDTO {
     comments?: number;
     likes?: number;
 
+    /**
+     * Creates a UserResponseDTO object from a User entity.
+     *
+     * @param user The User entity to create the DTO from.
+     * @returns The created UserResponseDTO object.
+     * @see User
+     */
     static fromEntity(user: User): UserResponseDTO {
         const dto = new UserResponseDTO();
 

@@ -1,5 +1,8 @@
 import { Comment } from "../entity/Comment";
 
+/**
+ * Represents a comment response data transfer object.
+ */
 export class CommentResponseDTO {
     id!: string;
     user!: {
@@ -16,6 +19,14 @@ export class CommentResponseDTO {
     updatedAt!: Date;
     children?: CommentResponseDTO[];
 
+    /**
+     * Creates a CommentResponseDTO instance from a Comment entity.
+     *
+     * @param comment - The Comment entity.
+     * @param likedByCurrentUser - Indicates if the comment is liked by the current user.
+     * @returns The CommentResponseDTO instance.
+     * @see Comment
+     */
     static fromEntity(
         comment: Comment,
         likedByCurrentUser?: boolean

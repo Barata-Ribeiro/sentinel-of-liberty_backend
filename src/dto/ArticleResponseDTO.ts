@@ -1,5 +1,8 @@
 import { Article } from "../entity/Article";
 
+/**
+ * Represents a Data Transfer Object (DTO) for an article response.
+ */
 export class ArticleResponseDTO {
     id!: string;
     user!: {
@@ -20,6 +23,13 @@ export class ArticleResponseDTO {
     createdAt!: Date;
     updatedAt!: Date;
 
+    /**
+     * Converts an Article entity to an ArticleResponseDTO.
+     *
+     * @param article - The Article entity to convert.
+     * @returns The converted ArticleResponseDTO.
+     * @see Article
+     */
     static fromEntity(article: Article): ArticleResponseDTO {
         const dto = new ArticleResponseDTO();
 
