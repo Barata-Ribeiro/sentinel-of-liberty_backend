@@ -15,6 +15,15 @@ import { UserServices } from "../service/UserServices";
 const userServices = new UserServices();
 
 export class UserController {
+    /**
+     * Retrieves all users.
+     *
+     * @param _req - The request object.
+     * @param res - The response object.
+     * @returns A JSON containing all users.
+     *
+     * @deprecated it's not used anywhere in the client.
+     */
     async getAllUsers(_req: Request, res: Response): Promise<Response> {
         const allUsers = await userRepository.find();
 
@@ -25,6 +34,14 @@ export class UserController {
         return res.status(200).json(usersResponse);
     }
 
+    /**
+     * Retrieves a user by their ID.
+     *
+     * @param req - The request object.
+     * @param res - The response object.
+     * @returns A JSON containing all the user's necessary information.
+     * @throws {NotFoundError} if the user is not found.
+     */
     async getUserById(req: Request, res: Response): Promise<Response> {
         const userId = req.params.userId;
 
@@ -39,6 +56,17 @@ export class UserController {
         return res.status(200).json(userResponse);
     }
 
+    /**
+     * Updates the user's own account. It takes the user's id from the request params and the following data from the request body:
+     * - sol_username: The user's new username.
+     * - sol_biography: The user's new biography.
+     * Both are optional. These are properties of the user entity and have no relation to the Discord user data.
+     *
+     * @param req - The request object.
+     * @param res - The response object.
+     * @returns A JSON containing the updated user's data and a success message.
+     * @throws {BadRequestError} if the requesting user is missing.
+     */
     async updateOwnAccount(req: AuthRequest, res: Response): Promise<Response> {
         const userData = req.body;
         const requestingUser = req.user;
@@ -57,6 +85,17 @@ export class UserController {
         });
     }
 
+    /**
+     * Deletes the user's own account. Uses TypeORM's transactions to delete the user and all its relations to guarantee data integrity and consistency.
+     * If fails, it will rollback the transaction and no data will be deleted.
+     *
+     * @param req - The request object containing the user ID.
+     * @param res - The response object.
+     * @returns A promise that resolves to the response object.
+     * @throws {BadRequestError} if the requesting user is missing or if the user ID does not match the requesting user's ID.
+     * @throws {NotFoundError} if the user is not found.
+     * @throws {InternalServerError} if an error occurs during the deletion process.
+     */
     async deleteOwnAccount(req: AuthRequest, res: Response): Promise<Response> {
         const userId = req.params.userId;
         const requestingUser = req.user;
@@ -104,6 +143,17 @@ export class UserController {
             .end({ message: "Account deleted successfully." });
     }
 
+    /**
+     * Admin route that serves to delete a user account by ID. Uses TypeORM's transactions to delete the user and all its relations to guarantee data integrity and consistency.
+     * If fails, it will rollback the transaction and no data will be deleted.
+     *
+     * @param req - The request object containing the user ID and authenticated user.
+     * @param res - The response object.
+     * @returns A promise that resolves to the response indicating the success of the deletion.
+     * @throws {BadRequestError} if the requesting user is missing.
+     * @throws {NotFoundError} if the user to delete is not found.
+     * @throws {InternalServerError} if an error occurs during the deletion process.
+     */
     async deleteUserAccount(
         req: AuthRequest,
         res: Response
@@ -144,6 +194,15 @@ export class UserController {
             .end({ message: "Account deleted successfully." });
     }
 
+    /**
+     * Admin route that serves to ban a user by their ID. It sets the user's 'isBanned' property to true and their role to 'BANNED'.
+     *
+     * @param req - The request object containing the user ID and authenticated user.
+     * @param res - The response object.
+     * @returns A success message.
+     * @throws {BadRequestError} if the requesting user is missing.
+     * @throws {NotFoundError} if the user to ban is not found.
+     */
     async banUserById(req: AuthRequest, res: Response): Promise<Response> {
         const userId = req.params.userId;
         const requestingUser = req.user;
@@ -161,7 +220,11 @@ export class UserController {
     }
 
     /**
-     * Removes the Discord login cookies from the response.
+     * It logs out the user from Discord by revoking the refresh token after the user deletes their own SoL account. Clears the authentication cookies as well. It will require the refresh token provided by Discord, which is stored in a cookie by the client.
+     *
+     * @todo Remove the cookie request, and instead, require the
+     * refresh token to be provided in the request body. And make the cookie deletion be of the client's responsibility.
+     *
      * @param req The request object.
      * @param res The response object.
      */
