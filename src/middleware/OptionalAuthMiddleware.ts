@@ -25,12 +25,15 @@ const OptionalAuthMiddleware = async (
 ): Promise<void> => {
     try {
         const authToken = req.headers.authorization?.split(" ")[1];
-        if (!authToken) return next();
+        if (!authToken) {
+            await next();
+            return;
+        }
 
         const secretKey = process.env.JWT_SECRET_KEY!;
         if (!secretKey) throw new NotFoundError("Secret key not found");
 
-        const verifiedToken = verify(authToken, secretKey) as JwtPayloadWithId;
+        const verifiedToken = verify(authToken!, secretKey) as JwtPayloadWithId;
 
         const actualUser = await userRepository.findOneBy({
             discordId: verifiedToken.discordId
