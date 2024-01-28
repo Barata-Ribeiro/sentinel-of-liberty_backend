@@ -11,12 +11,24 @@ import {
     NotFoundError
 } from "../../middleware/helper/ApiError";
 
+/**
+ * Event subscriber for the Like entity.
+ */
 @EventSubscriber()
 export class LikeSubscriber implements EntitySubscriberInterface<Like> {
+    /**
+     * Specifies the entity or entities to listen to.
+     * @returns The entity or entities to listen to.
+     */
     listenTo(): string | Function {
         return Like;
     }
 
+    /**
+     * Handles the afterInsert event.
+     * Increments the likeCount of the associated comment by 1.
+     * @param event - The InsertEvent containing the inserted Like entity.
+     */
     async afterInsert(event: InsertEvent<Like>) {
         const commentRepository = event.manager.getRepository(Comment);
         await commentRepository.increment(
@@ -26,6 +38,11 @@ export class LikeSubscriber implements EntitySubscriberInterface<Like> {
         );
     }
 
+    /**
+     * Handles the beforeRemove event.
+     * Decrements the likeCount of the associated comment by 1.
+     * @param event - The RemoveEvent containing the removed Like entity.
+     */
     async beforeRemove(event: RemoveEvent<Like>) {
         const commentRepository = event.manager.getRepository(Comment);
         let commentId: string;
