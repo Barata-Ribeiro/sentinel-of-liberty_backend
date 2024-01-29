@@ -40,6 +40,7 @@ export class UserController {
      * @param req - The request object.
      * @param res - The response object.
      * @returns A JSON containing all the user's necessary information.
+     * It also contains the user's last published article and last suggested news.
      * @throws {NotFoundError} if the user is not found.
      */
     async getUserById(req: Request, res: Response): Promise<Response> {
@@ -53,7 +54,11 @@ export class UserController {
 
         const userResponse = UserResponseDTO.fromEntity(requiredUser);
 
-        return res.status(200).json(userResponse);
+        return res.status(200).json({
+            profile: userResponse,
+            lastPublishedArticle: requiredUser.articles?.[0] ?? null,
+            lastSuggestedNews: requiredUser.newsSuggested?.[0] ?? null
+        });
     }
 
     /**
