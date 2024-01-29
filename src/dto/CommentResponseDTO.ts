@@ -10,7 +10,7 @@ export class CommentResponseDTO {
         username: string;
         avatar: string;
     };
-    message!: string;
+    textBody!: string;
     parentId?: string | null;
     likedByMe?: boolean;
     likeCount!: number;
@@ -44,7 +44,7 @@ export class CommentResponseDTO {
         dto.user.username =
             comment.user.sol_username ?? comment.user.discordUsername;
         dto.user.avatar = comment.user.discordAvatar;
-        dto.message = comment.message;
+        dto.textBody = comment.textBody;
         dto.parentId = comment.parent ? comment.parent.id : null;
         dto.likedByMe = likedByCurrentUser;
         dto.likeCount = comment.likeCount;

@@ -17,7 +17,7 @@ export class Comment {
     id!: string;
 
     @Column("text")
-    message!: string;
+    textBody!: string;
 
     @OneToMany(() => Like, (like) => like.comment, {
         cascade: true,

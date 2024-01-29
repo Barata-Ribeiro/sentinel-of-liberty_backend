@@ -11,12 +11,12 @@ import { likeRepository } from "../repository/likeRepository";
 import { userRepository } from "../repository/userRepository";
 
 interface CommentDataRequest {
-    message: string;
+    textBody: string;
     parentId?: string;
 }
 
 interface CommentDataUpdateRequest {
-    message: string;
+    textBody: string;
 }
 
 export class CommentServices {
@@ -47,7 +47,7 @@ export class CommentServices {
         const newComment = new Comment();
         newComment.user = actualUser;
         newComment.article = actualArticle;
-        newComment.message = commentData.message;
+        newComment.textBody = commentData.textBody;
 
         if (commentData.parentId) {
             const parentComment = await commentRepository.findOneBy({
@@ -88,7 +88,7 @@ export class CommentServices {
         if (actualComment.user.id !== userId)
             throw new UnauthorizedError("This is not your comment.");
 
-        actualComment.message = commentDataForUpdate.message;
+        actualComment.textBody = commentDataForUpdate.textBody;
         actualComment.wasEdited = true;
 
         await commentRepository.save(actualComment);
