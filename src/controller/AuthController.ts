@@ -36,7 +36,7 @@ export class AuthController {
 
         const userAuthToken = await sign(
             {
-                discordId: userDataResponse.discordId
+                discordId: userDataResponse.authData.discordId
             },
             process.env.JWT_SECRET_KEY,
             {
@@ -45,7 +45,10 @@ export class AuthController {
         );
 
         return res.status(200).json({
-            id: userDataResponse.id,
+            userInfo: {
+                id: userDataResponse.authData.id,
+                username: userDataResponse.existingUsername
+            },
             authToken: userAuthToken,
             refreshToken: accessTokenResponse.refresh_token,
             message: "You have successfully logged in!"
@@ -96,8 +99,6 @@ export class AuthController {
 
         res.clearCookie("authToken");
         res.clearCookie("refreshToken");
-        res.clearCookie("userData");
-        res.clearCookie("userId");
 
         return res
             .status(200)

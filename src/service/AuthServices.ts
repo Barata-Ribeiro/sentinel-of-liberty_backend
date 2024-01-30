@@ -24,6 +24,11 @@ interface UserResponse {
     locale?: string;
 }
 
+interface UserLoginResponse {
+    authData: UserResponse;
+    existingUsername: string | null;
+}
+
 export class AuthServices {
     /**
      * Saves user data to the database after logging in with Discord.
@@ -33,7 +38,9 @@ export class AuthServices {
      * @throws {ForbiddenError} If the user is banned.
      * @throws {InternalServerError} If an error occurs during the process.
      */
-    async discordLoginSaveUserToDatabase(token: string): Promise<UserResponse> {
+    async discordLoginSaveUserToDatabase(
+        token: string
+    ): Promise<UserLoginResponse> {
         try {
             const userResponse = await axios.get(
                 "https://discord.com/api/v10/users/@me",
@@ -56,6 +63,8 @@ export class AuthServices {
                 locale: userResponse.data.locale
             };
 
+            let usernameIfUserExists: string | null = "";
+
             const checkIfUserExists = await userRepository.findOneBy({
                 discordId: userData.discordId
             });
@@ -74,6 +83,8 @@ export class AuthServices {
 
                 await userRepository.save(updatedUser);
                 userData.id = updatedUser.id;
+                usernameIfUserExists =
+                    updatedUser.discordUsername ?? updatedUser.sol_username;
             } else {
                 const newUser = await userRepository.create({
                     discordId: userData.discordId,
@@ -86,7 +97,10 @@ export class AuthServices {
                 userData.id = newUser.id;
             }
 
-            return userData;
+            return {
+                authData: userData,
+                existingUsername: usernameIfUserExists ?? null
+            };
         } catch (error) {
             if (axios.isAxiosError(error) && error.response)
                 throw new Error(error.response.data.message);
