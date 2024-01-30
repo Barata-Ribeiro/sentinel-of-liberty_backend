@@ -99,6 +99,7 @@ export class AuthController {
 
         res.clearCookie("authToken");
         res.clearCookie("refreshToken");
+        res.clearCookie("userData");
 
         return res
             .status(200)
